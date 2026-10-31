@@ -8,7 +8,7 @@ Open `index.html` in a modern browser. GitHub Pages serves the same file from th
 
 ## Source
 
-`index.html` contains the complete runnable app, including CSS, JavaScript and embedded mountain artwork. Download and extract `Chakra-Studio-OS-source.zip` for modular source, development server, automated tests, and documentation.
+`index.html` contains the complete runnable app, including CSS, JavaScript and embedded mountain artwork. The `dist/` folder contains modular source. `server.mjs` is a development server and `tests/` contains automated checks. Run `npm test` to verify core behavior. GitHub Pages serves the standalone root `index.html` from `main`.
 
 ## Data and scope
 

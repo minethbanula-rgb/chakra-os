@@ -1,0 +1,23 @@
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const source=readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
+const data=new Map(), context=vm.createContext({console,structuredClone,Intl,Date,Math,JSON,Number,String,Array,Set,crypto:globalThis.crypto,location:{hash:'#home'},localStorage:{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)},window:{addEventListener(){}},document:{querySelector:()=>({classList:{add(){},remove(){}},textContent:''}),querySelectorAll:()=>[]},setTimeout:()=>1,clearTimeout(){},assert});
+vm.runInContext(source.slice(0,source.indexOf("$('#import-file').onchange=")),context);
+vm.runInContext(`
+assert.equal(revenue(),48250);
+assert.equal(expenses(),12480);
+assert.equal(totalInvoice(db.invoices[0]),9765);
+assert.equal(outstanding(),0);
+db.invoices[0].status='Sent'; assert.equal(outstanding(),9765);
+db.invoices[0].items[0].qty=2; assert.equal(totalInvoice(db.invoices[0]),12477.5);
+assert.equal(esc('<script>"&'), '&lt;script&gt;&quot;&amp;');
+assert.ok(validDB(db)); assert.ok(!validDB({version:1}));
+for(const fn of [home,projects,tasks,clients,meetings,subscriptions,finance,bills,invoiceEditor,insights,users,settings])assert.ok(fn().length>100);
+for(const k of ['projects','tasks','clients','subscriptions','meetings','transactions','invoices','activity','users'])db[k]=[];
+invoice=undefined;
+for(const fn of [home,projects,tasks,clients,meetings,subscriptions,finance,bills,invoiceEditor,insights,users,settings])assert.ok(fn().length>100);
+assert.equal(totalInvoice(invoice),0);
+assert.equal(expenseGradient(),'#333');
+console.log('PASS: finance totals, invoice tax, outstanding balances, escaping, backup shape, 12 populated and 12 empty screens.');
+`,context);
