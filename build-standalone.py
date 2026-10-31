@@ -8,3 +8,5 @@ css = css.replace("url('assets/mountains.svg')", "url('data:image/svg+xml;base64
 html = html.replace('<link rel="stylesheet" href="style.css">', '<style>' + css + '</style>')
 html = html.replace('<script src="app.js" defer></script>', '<script>' + (root / 'dist/app.js').read_text() + '</script>')
 (root / 'Chakra-Studio-OS.html').write_text(html)
+
+(root / 'index.html').write_text(html)
