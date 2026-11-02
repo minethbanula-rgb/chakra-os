@@ -240,6 +240,7 @@ async function changeShare(client,operation){
 }
 async function renderSharedPortal(){
  const token=page.slice(6),route=page;
+ clearTimeout(toast.timer);$('#toast').textContent='';$('#toast').classList.remove('show');if($('#modal').open)$('#modal').close();$('#modal').innerHTML='';
  $('#app').innerHTML='<main class="portal-shell"><header><h1>Project updates</h1></header><div id="portal-body" role="status">Loading project updates…</div></main>';
  if(!/^[a-f0-9]{64}$/.test(token)){$('#portal-body').textContent='This share link is invalid or has been disabled.';return}
  if(!cloud){$('#portal-body').textContent='Connecting to project updates…';return;}
