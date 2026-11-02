@@ -4,7 +4,7 @@ function directoryOptions(records,current,labelKey='name'){
  const values=[...new Set(records.map(r=>r[labelKey]).filter(Boolean))];if(current&&!values.includes(current))values.push(current);
  return `<option value="">Unassigned</option>${values.map(name=>`<option value="${esc(name)}" ${current===name?'selected':''}>${esc(name)}</option>`).join('')}`;
 }
-function assigneeSelect(current){const values=db.users.filter(u=>u.status!=='Inactive').map(u=>({name:u.name}));return `<select name="assignee">${directoryOptions(values,current)}</select>`;}
+function assigneeSelect(current){const values=db.users.filter(u=>u.status!=='Inactive').map(u=>({name:u.name})),existing=db.users.find(u=>u.name===current||u.email===current||u.name.split(' ')[0]===current);return `<select name="assignee">${directoryOptions(values,existing?.name||current)}</select>`;}
 function clientDropdown(current,attributes='name="client"'){return `<select ${attributes}>${directoryOptions(db.clients,current).replace('Unassigned','Select client')}</select>`;}
 function safeDriveURL(value){try{const url=new URL(value);return url.protocol==='https:'&&['drive.google.com','docs.google.com'].includes(url.hostname)?url.href:''}catch{return ''}}
 function milestoneEditor(project,form){

@@ -119,7 +119,7 @@ function projects(){
 }
 function settings(){
  const tabs=['Studio identity','Appearance','Invoice defaults','Workspace','Data'];
- const form=(id,body,label='Save settings')=>`<form id="${id}"><div class="form-grid">${body}</div><div class="dialog-actions"><button class="primary">${label}</button></div></form>`;
+ const form=(id,body,label='Save settings')=>`<form id="${id}"><div class="form-grid">${body}</div><div class="dialog-actions"><button type="submit" class="primary">${label}</button></div></form>`;
  let body='';
  if(settingsTab==='Studio identity')body=panel('Studio identity','layers',form('settings-form',field('Studio name',input('studio',db.settings.studio))+field('Primary brand',input('brand',db.settings.brand))+field('Secondary brand',input('secondary',db.settings.secondary))+field('Owner',input('owner',db.settings.owner))+field('Email',input('email',db.settings.email,'email'))+field('Address',input('address',db.settings.address))+field('Website',input('website',db.settings.website)))+uploadControl('App logo','appLogo',db.settings.appLogo));
  if(settingsTab==='Appearance')body=panel('Appearance','star',form('appearance-form',field('Accent colour',`<input name="accent" type="color" value="${safeAccent(db.settings.accent)}">`)+field('Motion preference',select('motion',['System','Reduced','Off'],db.settings.motion||'System')),'Save appearance')+'<p class="section-note">System follows your device’s reduced motion preference. Reduced uses brief fades. Off disables animation.</p>');
@@ -177,7 +177,7 @@ function directoryOptions(records,current,labelKey='name'){
  const values=[...new Set(records.map(r=>r[labelKey]).filter(Boolean))];if(current&&!values.includes(current))values.push(current);
  return `<option value="">Unassigned</option>${values.map(name=>`<option value="${esc(name)}" ${current===name?'selected':''}>${esc(name)}</option>`).join('')}`;
 }
-function assigneeSelect(current){const values=db.users.filter(u=>u.status!=='Inactive').map(u=>({name:u.name}));return `<select name="assignee">${directoryOptions(values,current)}</select>`;}
+function assigneeSelect(current){const values=db.users.filter(u=>u.status!=='Inactive').map(u=>({name:u.name})),existing=db.users.find(u=>u.name===current||u.email===current||u.name.split(' ')[0]===current);return `<select name="assignee">${directoryOptions(values,existing?.name||current)}</select>`;}
 function clientDropdown(current,attributes='name="client"'){return `<select ${attributes}>${directoryOptions(db.clients,current).replace('Unassigned','Select client')}</select>`;}
 function safeDriveURL(value){try{const url=new URL(value);return url.protocol==='https:'&&['drive.google.com','docs.google.com'].includes(url.hostname)?url.href:''}catch{return ''}}
 function milestoneEditor(project,form){

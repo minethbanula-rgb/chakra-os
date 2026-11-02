@@ -12,7 +12,7 @@ function projects(){
 }
 function settings(){
  const tabs=['Studio identity','Appearance','Invoice defaults','Workspace','Data'];
- const form=(id,body,label='Save settings')=>`<form id="${id}"><div class="form-grid">${body}</div><div class="dialog-actions"><button class="primary">${label}</button></div></form>`;
+ const form=(id,body,label='Save settings')=>`<form id="${id}"><div class="form-grid">${body}</div><div class="dialog-actions"><button type="submit" class="primary">${label}</button></div></form>`;
  let body='';
  if(settingsTab==='Studio identity')body=panel('Studio identity','layers',form('settings-form',field('Studio name',input('studio',db.settings.studio))+field('Primary brand',input('brand',db.settings.brand))+field('Secondary brand',input('secondary',db.settings.secondary))+field('Owner',input('owner',db.settings.owner))+field('Email',input('email',db.settings.email,'email'))+field('Address',input('address',db.settings.address))+field('Website',input('website',db.settings.website)))+uploadControl('App logo','appLogo',db.settings.appLogo));
  if(settingsTab==='Appearance')body=panel('Appearance','star',form('appearance-form',field('Accent colour',`<input name="accent" type="color" value="${safeAccent(db.settings.accent)}">`)+field('Motion preference',select('motion',['System','Reduced','Off'],db.settings.motion||'System')),'Save appearance')+'<p class="section-note">System follows your device’s reduced motion preference. Reduced uses brief fades. Off disables animation.</p>');
