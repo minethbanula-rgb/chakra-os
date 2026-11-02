@@ -18,7 +18,7 @@ A responsive creative-studio workspace with local storage, optional Supabase tea
 
 The dedicated Supabase project is `qxfumvbvnaqvtrzkmpjl` (Chakra OS). The schema and row policies are installed. No workspace records have been uploaded automatically.
 
-1. In Supabase Authentication → URL Configuration, set Site URL and an allowed redirect to `https://minethbanula-rgb.github.io/chakra-os/`.
+1. Production Site URL and allowed redirect are configured as `https://minethbanula-rgb.github.io/chakra-os/`.
 2. Configure production SMTP under Authentication email settings. Default Supabase delivery is restricted; email confirmation for arbitrary team/client addresses is not production-ready until this is configured.
 3. Create and confirm the owner account using the authorized owner email, then sign in through **Team Sign In**. Owner membership is preconfigured; account credentials have not been created by the build.
 4. Choose **Upload This Workspace** to explicitly publish the current browser data to the private shared workspace.
@@ -44,6 +44,6 @@ Source files: `dist/app.js`, `dist/enhancements.js`, `dist/style.css`, `dist/ind
 
 ## Validation and limits
 
-Automated checks cover financial totals, invoice calculations, escaping, backup shape, derived progress, chart content, and populated/empty screen rendering. Browser QA covered task List/Cards views, checklist calculation, app-logo propagation to invoices, accent changes, invoice template save/restore, live FX and loaded subscription favicons. Database checks confirmed RLS, anonymous denial and no security-advisor findings. Full email signup and two-account portal isolation were not end-to-end tested because email configuration and account setup are still required.
+Automated checks cover financial totals, invoice calculations, escaping, backup shape, derived progress, chart content, and populated/empty screen rendering. Browser QA covered task List/Cards views, checklist calculation, app-logo propagation to invoices, accent changes, invoice template save/restore, live FX and loaded subscription favicons. Database checks confirmed RLS, anonymous denial and no security-advisor findings. Full email signup and two-account portal isolation were not end-to-end tested because custom SMTP and account setup are still required.
 
 PDF export uses the browser print dialog. Invoice statuses do not automatically create finance transactions. Currency display changes labels of recorded amounts; FX conversion applies specifically to USD subscription totals. Calendar and other integrations currently use file export/import. Subscription auto-renew tracks a preference; it does not change provider billing. Back up important data regularly.
