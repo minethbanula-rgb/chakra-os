@@ -20,8 +20,9 @@ await page.setViewportSize({width:390,height:900});await page.goto(base+'#home')
 for(const mode of ['Reduced','Off']){await page.evaluate(mode=>{db.settings.motion=mode;page='home';render()},mode);assert.equal(await page.locator('h1').isVisible(),true);}
 // Exercise the delivery controls in a real browser without touching cloud business data.
 await page.setViewportSize({width:1440,height:1000});await page.goto(base+'#projects');await page.locator('[data-view="projects:Board"]').click();
-await page.locator('[data-drag-project="p0"]').dragTo(page.locator('[data-project-drop="In Review"]'));
-await page.waitForFunction(()=>db.projects.find(p=>p.id==='p0').status==='In Review');
+await page.evaluate(()=>{window.projectDragTrace=[];for(const name of ['dragstart','dragover','drop'])document.addEventListener(name,e=>{if(window.projectDragTrace.length<30)window.projectDragTrace.push({name,types:[...e.dataTransfer.types],target:e.target.closest('[data-project-drop]')?.dataset.projectDrop})},true)});
+await page.locator('[data-drag-project="p0"] .project-drag-handle').dragTo(page.locator('[data-project-drop="In Review"]'),{targetPosition:{x:12,y:12}});
+try{await page.waitForFunction(()=>db.projects.find(p=>p.id==='p0').status==='In Review',null,{timeout:5000})}catch(error){console.log('Project drag trace:',await page.evaluate(()=>window.projectDragTrace));await page.screenshot({path:out+'/project-drag-failure.png',fullPage:true});throw error}
 await page.locator('[data-add="projects"]').click();await page.locator('[name=name]').fill('Delivery QA project');await page.locator('[name=client]').selectOption('Nova Labs');await page.locator('#add-milestone').click();await page.locator('[data-milestone-title]').fill('Design approval');await page.locator('[data-milestone-date]').fill('2026-11-20');await page.locator('[data-milestone-state]').selectOption('In Progress');await page.locator('[name=driveUrl]').fill('https://drive.google.com/drive/folders/qa-fixture');await page.locator('#record-form button[type=submit]').click();
 assert.equal(await page.evaluate(()=>db.projects[0].milestones[0].title),'Design approval');
 await page.goto(base+'#tasks');await page.locator('[data-add=tasks]').first().click();assert.equal(await page.locator('[name=assignee]').evaluate(el=>el.tagName),'SELECT');await page.locator('[data-close]').click();

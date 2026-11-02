@@ -29,9 +29,9 @@ A light studio workspace for projects, tasks, clients, finances and protected cl
 
 ## Accounts and cloud
 
-Dedicated Supabase project: qxfumvbvnaqvtrzkmpjl. Never use Field Archive. Existing server authorization and optimistic revision checks are retained; no schema migration is needed. The frontend contains only a publishable key.
+Dedicated Supabase project: qxfumvbvnaqvtrzkmpjl. Never use Field Archive. Existing server authorization and optimistic revision checks are retained. The additive share-portals.sql migration installs the new link service. The frontend contains only a publishable key.
 
-1. Configure production SMTP and verify actual confirmation-email delivery before onboarding arbitrary team/client addresses. This release has not verified email delivery or two-account isolation.
+1. Configure production SMTP and verify actual confirmation-email delivery before onboarding additional staff accounts. Email delivery is still unverified; client share links require no client account or email confirmation.
 2. Create and confirm the owner account using the configured owner email. The production redirect is https://minethbanula-rgb.github.io/chakra-os/.
 3. Sign in and explicitly choose Upload This Workspace to replace cloud records. Browser records remain available signed out.
 4. In Team → Team logins, enable each person's email and authorization role. They create their own accounts. Enabling access does not send an invitation.
