@@ -5,7 +5,7 @@ const source=readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
 assert.fixture=readFileSync(new URL('./fixtures/legacy-v1.json',import.meta.url),'utf8');
 const data=new Map(), context=vm.createContext({console,URL,structuredClone,Intl,Date,Math,JSON,Number,String,Array,Set,crypto:globalThis.crypto,location:{hash:'#home'},localStorage:{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)},window:{addEventListener(){}},document:{querySelector:()=>({classList:{add(){},remove(){}},textContent:''}),querySelectorAll:()=>[]},setTimeout:()=>1,clearTimeout(){},assert});
 vm.runInContext(source.slice(0,source.indexOf("$('#import-file').onchange=")),context);
-for(const file of ['workspace-ui.js','charts.js'])vm.runInContext(readFileSync(new URL('../dist/'+file,import.meta.url),'utf8'),context);
+for(const file of ['workspace-ui.js','charts.js','delivery.js','sharing.js'])vm.runInContext(readFileSync(new URL('../dist/'+file,import.meta.url),'utf8'),context);
 const enhancements=readFileSync(new URL('../dist/enhancements.js',import.meta.url),'utf8');
 vm.runInContext(enhancements.slice(0,enhancements.lastIndexOf('bootStudio();')),context);
 vm.runInContext(`

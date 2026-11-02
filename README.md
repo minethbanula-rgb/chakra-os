@@ -4,13 +4,24 @@ Live app: https://minethbanula-rgb.github.io/chakra-os/
 
 A light studio workspace for projects, tasks, clients, finances and protected client portals. Sample records are fictional. Signed-out records stay in your browser; cloud upload is explicit.
 
-## This release
+## Project delivery update
+
+- Wider desktop sidebar and larger studio logo area.
+- Drag project cards between Board columns; Move to remains available for keyboard/touch users.
+- Task assignees and project/invoice clients are dropdowns. Historical selections remain available when editing. Only the client company name is required; contact information is optional.
+- Settings → Workspace → Monthly cycle starts on sets a recurring revenue month (for example, 25th–24th). Short months clamp the start to the last available day. Home, Finance and charts use the same selected range and exclude future transactions. Quarter/Year retain calendar periods.
+- Invoice advance percentage and amount update each other. The advance request and remaining balance appear in print, persist on invoices and can be saved in templates. Requested advances do not record payment or revenue.
+- Projects can store dated milestones with Planned / In Progress / Complete states and an HTTPS Google Drive/Docs updates link.
+- Clients → Share Portal creates a random, revocable no-login link. Anyone holding that link sees only that client’s projects, stages, milestone dates and Drive updates. Replace link invalidates the previous link; Disable sharing revokes it. Studio staff still sign in to manage or publish cloud data. Invoices, contact details, notes and tasks are excluded. Share creation is explicit; no existing clients were made public.
+- backend/share-portals.sql is the additive sharing migration, applied to the dedicated project. Only token hashes are stored in the private share table. Full workspace RLS remains unchanged. tests/sharing-boundary.sql uses rollback-only synthetic fixtures to verify access, projection, rotation and revocation.
+
+## Previous light redesign
 
 - Compact headers and a shared light theme replace scenic banners. App/invoice logos, profile photos, accent selection and subscription favicons remain.
 - Meetings, scheduling, note parsing and calendar export are retired. Old #meetings links return Home with one notice. Version 1 backups retain meeting records, legacy banner values and previously imported tasks. Clearing visible records also preserves retired history.
 - Projects offer Table, Cards and Board views. Open project metrics and the Active filter include On Hold; delivered, portfolio and archived projects are excluded. Projects with no tasks offer Add task.
 - Tasks offer Board and List views. View changes retain search and filters. Checklists calculate progress; Done checks all steps, reopening retains them, and unchecking reopens a completed task.
-- Charts share month/quarter/year-to-date ranges, revenue/expense bars, hatching, a net line, keyboard/touch details and exact-value tables. Comparisons use the equivalent elapsed previous period, clamped to that period's end. Empty buckets say No records. Current-month data excludes future transactions. Finance's top-level totals and expense breakdown are all recorded transactions.
+- Charts share month/quarter/year-to-date ranges, revenue/expense bars, hatching, a net line, keyboard/touch details and exact-value tables. Comparisons use the equivalent elapsed previous period, clamped to that period's end. Empty buckets say No records. Current-month data excludes future transactions. Finance's top-level totals and expense breakdown use the selected reporting range.
 - Motion 14.9.0 is pinned and bundled locally from motion/mini. Appearance offers System, Reduced and Off. Missing animation support leaves the app usable. Chart range changes interpolate overlapping saved buckets; no repeated entrance on typing or saves.
 - Team is the visible label for the compatible #users route; #team is also accepted. Display roles and authorization roles remain separate.
 - Invoice templates retain line items, tax, notes, currency and invoice logo without copying client, dates or number. PDF uses browser printing.
@@ -24,9 +35,9 @@ Dedicated Supabase project: qxfumvbvnaqvtrzkmpjl. Never use Field Archive. Exist
 2. Create and confirm the owner account using the configured owner email. The production redirect is https://minethbanula-rgb.github.io/chakra-os/.
 3. Sign in and explicitly choose Upload This Workspace to replace cloud records. Browser records remain available signed out.
 4. In Team → Team logins, enable each person's email and authorization role. They create their own accounts. Enabling access does not send an invitation.
-5. Use a client's Portal Link & Access to enable their account and copy their protected link. Client browsers request only the restricted portal RPC; they never fetch the workspace blob.
+5. Use a client's Share Portal to explicitly create, copy, replace or revoke a login-free delivery link. The team workspace must be connected and saved first. Client browsers request only the token-scoped RPC; they never fetch the workspace blob.
 
-RLS limits full workspace reads/writes to staff. Only owners manage membership. Portals return matching client projects and non-draft invoices without internal notes or tasks. Conflicting or failed saves remain unsynced; export before reloading. Do not rerun backend/schema.sql against the existing project.
+RLS limits full workspace reads/writes to staff. Only owners manage membership. Public delivery portals return matching project stages, milestones and Drive links without invoices, contacts, internal notes or tasks. Conflicting or failed saves remain unsynced; export before reloading. Do not rerun backend/schema.sql against the existing project.
 
 ## Development and verification
 
