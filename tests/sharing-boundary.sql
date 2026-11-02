@@ -36,4 +36,9 @@ update private.chakra_portal_shares set enabled=false where client_id='share-tes
 set local role anon;
 do $$begin begin perform public.chakra_shared_portal(repeat('c',64));raise exception 'REVOKED_TOKEN_ACCEPTED';exception when others then if sqlerrm='REVOKED_TOKEN_ACCEPTED' then raise;end if;end;end $$;
 reset role;
+update public.chakra_workspace set data=jsonb_set(data,'{clients}',(data->'clients')||'[{"id":"ambiguous-client","name":"Client A"}]'::jsonb) where id=true;
+update private.chakra_portal_shares set enabled=true where client_id='share-test-a';
+set local role anon;
+do $$begin begin perform public.chakra_shared_portal(repeat('c',64));raise exception 'AMBIGUOUS_CLIENT_ACCEPTED';exception when others then if sqlerrm='AMBIGUOUS_CLIENT_ACCEPTED' then raise;end if;end;end $$;
+reset role;
 rollback;

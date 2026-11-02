@@ -24,6 +24,7 @@ begin
   update private.chakra_portal_shares set enabled=false,updated_at=now() where client_id=requested_client;
   return false;
  elsif operation='enable' then
+  if (select count(*) from jsonb_array_elements(coalesce(d->'clients','[]'::jsonb)) c where c->>'name'=(select c2->>'name' from jsonb_array_elements(d->'clients') c2 where c2->>'id'=requested_client limit 1))<>1 then raise exception 'Client company names must be unique before sharing'; end if;
   if share_token is null or share_token !~ '^[a-f0-9]{64}$' then raise exception 'A secure share token is required'; end if;
   insert into private.chakra_portal_shares(client_id,token_hash,enabled) values(requested_client,token_digest,true)
    on conflict(client_id) do update set token_hash=excluded.token_hash,enabled=true,updated_at=now();
@@ -51,6 +52,7 @@ begin
  select data into d from public.chakra_workspace where id=true;
  select value into c from jsonb_array_elements(coalesce(d->'clients','[]'::jsonb)) where value->>'id'=requested_client;
  if c is null then raise exception 'Share link unavailable'; end if;
+ if (select count(*) from jsonb_array_elements(coalesce(d->'clients','[]'::jsonb)) other_client where other_client->>'name'=c->>'name')<>1 then raise exception 'Share link unavailable'; end if;
  return jsonb_build_object(
   'client',jsonb_build_object('name',c->>'name'),
   'settings',jsonb_build_object('studio',d#>>'{settings,studio}','accent',d#>>'{settings,accent}','appLogo',d#>>'{settings,appLogo}'),
