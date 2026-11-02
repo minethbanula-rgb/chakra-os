@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const html=readFileSync('dist/index.html','utf8');
 const dom=new JSDOM(html,{url:'https://studio.test/#home',runScripts:'outside-only',pretendToBeVisual:true});
 const w=dom.window;w.structuredClone=structuredClone;w.matchMedia=()=>({matches:false,addEventListener(){}});w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'));};w.assert=assert;
-for(const script of ['app.js','workspace-ui.js','charts.js','enhancements.js'])vm.runInContext(readFileSync('dist/'+script,'utf8'),dom.getInternalVMContext());
+for(const script of ['app.js','workspace-ui.js','charts.js','delivery.js','sharing.js','enhancements.js'])vm.runInContext(readFileSync('dist/'+script,'utf8'),dom.getInternalVMContext());
 const click=s=>{const el=w.document.querySelector(s);assert.ok(el,'Missing '+s);el.click();};
 const evaluate=code=>w.eval(code);
 // Navigation and screen composition exercise the real bind/render cycle.
