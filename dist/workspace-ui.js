@@ -1,5 +1,7 @@
 /* Shared screen composition. No additional renderer override layer. */
 const isOpenProject=p=>!['Delivered','Archived','Portfolio Queue'].includes(p.status);
+const navigationMedia=window.matchMedia?.('(max-width: 700px)');
+navigationMedia?.addEventListener('change',()=>{window.studioMotion?.cancel();const side=$('.sidebar');if(side)side.inert=navigationMedia.matches&&!side.classList.contains('open');});
 function projectTaskSummary(p){const linked=db.tasks.filter(t=>t.project===p.id);return linked.length?`${linked.filter(t=>t.status==='Done').length}/${linked.length} tasks done`:`No tasks yet <button data-project-task="${esc(p.id)}">Add task</button>`;}
 function projects(){
  const open=db.projects.filter(isOpenProject),list=db.projects.filter(p=>(filter==='All'||filter==='Active'&&isOpenProject(p)||p.status===filter)&&(!query||(p.name+' '+p.client).toLowerCase().includes(query.toLowerCase())));
@@ -25,6 +27,6 @@ function bindWorkspaceUI(){
  bindChartDetails();
  const menu=$('[data-action="menu"]'),side=$('.sidebar');if(menu)menu.setAttribute('aria-expanded','false');
  if(side)side.inert=window.matchMedia?.('(max-width: 700px)').matches&&!side.classList.contains('open');
- if(menu)menu.onclick=()=>{const side=$('.sidebar'),open=side.classList.toggle('open');side.inert=!open;menu.setAttribute('aria-expanded',String(open));if(open){window.studioMotion?.enter(side,db.settings.motion,.2);side.querySelector('button')?.focus();}};
- if($('.sidebar'))$('.sidebar').onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();$('.sidebar').classList.remove('open');menu?.focus()}if(e.key==='Tab'&&$('.sidebar').classList.contains('open')){const buttons=$$('.sidebar button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons.at(-1).focus()}else if(!e.shiftKey&&document.activeElement===buttons.at(-1)){e.preventDefault();buttons[0].focus()}}};
+ if(menu)menu.onclick=()=>{window.studioMotion?.cancel();const side=$('.sidebar'),open=side.classList.toggle('open');side.inert=!open;menu.setAttribute('aria-expanded',String(open));if(open){window.studioMotion?.run(side,{opacity:[.6,1]},.2,db.settings.motion);side.querySelector('button')?.focus();}};
+ if($('.sidebar'))$('.sidebar').onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();window.studioMotion?.cancel();$('.sidebar').classList.remove('open');$('.sidebar').inert=true;menu?.setAttribute('aria-expanded','false');menu?.focus()}if(e.key==='Tab'&&$('.sidebar').classList.contains('open')){const buttons=$$('.sidebar button');if(e.shiftKey&&document.activeElement===buttons[0]){e.preventDefault();buttons.at(-1).focus()}else if(!e.shiftKey&&document.activeElement===buttons.at(-1)){e.preventDefault();buttons[0].focus()}}};
 }

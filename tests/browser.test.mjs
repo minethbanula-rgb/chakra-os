@@ -14,9 +14,9 @@ for(const width of [360,390,768,1024,1440,1920]){
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);assert.equal(overflow,false,`${screen} overflow at ${width}`);
  }
 }
-await page.setViewportSize({width:1440,height:1000});await page.goto(base+'#home');await page.locator('h1').waitFor();await page.screenshot({path:out+'/home-desktop.png',fullPage:true});
-await page.goto(base+'#projects');await page.locator('[data-view="projects:Cards"]').click();await page.screenshot({path:out+'/projects-desktop.png',fullPage:true});
-await page.setViewportSize({width:390,height:900});await page.goto(base+'#home');await page.locator('[data-action="menu"]').click();assert.equal(await page.locator('[data-action="menu"]').getAttribute('aria-expanded'),'true');await page.keyboard.press('Escape');await page.screenshot({path:out+'/home-mobile.png',fullPage:true});
+await page.setViewportSize({width:1440,height:1000});await page.goto(base+'#home');await page.locator('h1').waitFor();await page.waitForTimeout(350);assert.equal(await page.locator('#page').evaluate(el=>getComputedStyle(el).opacity),'1');await page.screenshot({path:out+'/home-desktop.png',fullPage:true});
+await page.goto(base+'#projects');await page.locator('[data-view="projects:Cards"]').click();await page.waitForTimeout(350);await page.screenshot({path:out+'/projects-desktop.png',fullPage:true});
+await page.setViewportSize({width:390,height:900});await page.goto(base+'#home');await page.locator('[data-action="menu"]').click();assert.equal(await page.locator('[data-action="menu"]').getAttribute('aria-expanded'),'true');await page.keyboard.press('Escape');await page.waitForTimeout(350);assert.ok(await page.locator('.sidebar').evaluate(el=>el.getBoundingClientRect().right<=0));await page.screenshot({path:out+'/home-mobile.png',fullPage:true});
 for(const mode of ['Reduced','Off']){await page.evaluate(mode=>{db.settings.motion=mode;page='home';render()},mode);assert.equal(await page.locator('h1').isVisible(),true);}
 await page.goto(base+'#invoice');await page.emulateMedia({media:'print'});assert.equal(await page.locator('.template-toolbar').isVisible(),false);assert.equal(await page.locator('.paper').isVisible(),true);await page.pdf({path:out+'/invoice.pdf',format:'A4'});
 assert.deepEqual(errors,[]);await browser.close();console.log('PASS: widths, screen navigation, motion, keyboard drawer and print.');

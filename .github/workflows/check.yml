@@ -13,6 +13,7 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build
+      - run: npm run test:standalone
       - run: git diff --exit-code -- index.html Chakra-Studio-OS.html dist/vendor.js
       - run: npx playwright install --with-deps chromium
       - run: |
