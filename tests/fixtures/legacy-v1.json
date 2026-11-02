@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "settings": {
+    "studio": "Fixture studio",
+    "brand": "Chakra",
+    "owner": "Mineth Banula",
+    "currency": "USD",
+    "accent": "#123abc",
+    "homeBanner": "data:image/png;base64,AAAA",
+    "fx": 300,
+    "prefix": "INV-",
+    "tax": 8.5,
+    "target": 60000
+  },
+  "projects": [
+    {
+      "id": "p",
+      "name": "Historical project",
+      "status": "On Hold",
+      "client": "Client",
+      "due": "2026-01-01",
+      "budget": 100
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t",
+      "title": "Imported action remains independent",
+      "project": "p",
+      "status": "Backlog",
+      "priority": "High",
+      "due": "2026-01-01",
+      "assignee": "Mineth",
+      "checklist": [
+        {
+          "id": "s",
+          "text": "Retained step",
+          "done": true
+        }
+      ]
+    }
+  ],
+  "meetings": [
+    {
+      "id": "m",
+      "title": "Historical meeting",
+      "action_items": [
+        {
+          "task": "Imported action remains independent"
+        }
+      ],
+      "unknownLegacyField": {
+        "preserve": true
+      }
+    }
+  ],
+  "clients": [],
+  "users": [],
+  "subscriptions": [],
+  "transactions": [],
+  "invoices": [],
+  "templates": [],
+  "activity": []
+}

@@ -4,15 +4,21 @@
   "private": true,
   "description": "Creative studio workspace with secure team access and client portals",
   "scripts": {
-    "check": "node --check dist/app.js && node --check dist/enhancements.js",
+    "check": "node --check dist/app.js && node --check dist/enhancements.js && node --check dist/workspace-ui.js && node --check dist/charts.js",
     "dev": "node server.mjs",
-    "build": "npm run check && esbuild sdk-entry.js --bundle --minify --format=iife --outfile=dist/vendor.js && python3 build-standalone.py",
-    "test": "node tests/core.test.mjs"
+    "build": "npm run check && esbuild sdk-entry.js --bundle --minify --format=iife --outfile=dist/vendor.js && node build-standalone.mjs",
+    "test": "node tests/core.test.mjs && node tests/workflows.test.mjs",
+    "test:browser": "node tests/browser.test.mjs",
+    "test:standalone": "node tests/standalone.test.mjs",
+    "test:cloud": "node tests/cloud-readonly.test.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.118.0"
+    "@supabase/supabase-js": "2.118.0",
+    "motion": "14.9.0"
   },
   "devDependencies": {
-    "esbuild": "0.25.12"
+    "esbuild": "0.25.12",
+    "jsdom": "26.1.0",
+    "playwright": "1.64.1"
   }
 }
