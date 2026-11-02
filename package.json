@@ -2,11 +2,17 @@
   "name": "chakra-studio-os",
   "version": "1.0.0",
   "private": true,
-  "description": "Browser-local creative studio workspace",
+  "description": "Creative studio workspace with secure team access and client portals",
   "scripts": {
-    "check": "node --check dist/app.js",
+    "check": "node --check dist/app.js && node --check dist/enhancements.js",
     "dev": "node server.mjs",
-    "build": "node --check dist/app.js",
+    "build": "npm run check && esbuild sdk-entry.js --bundle --minify --format=iife --outfile=dist/vendor.js && python3 build-standalone.py",
     "test": "node tests/core.test.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.118.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
   }
 }
