@@ -50,6 +50,12 @@ insert into public.members(workspace_id, name, email, role, status, user_id) sel
 select test.ok((select status = 'Invited' and user_id is null from public.members where email = 'designer@studio.test'), 'invites start unlinked and Invited');
 insert into public.members(workspace_id, name, email, role) select v, 'Pending', 'unconfirmed@studio.test', 'member' from ids where k = 'ws1';
 select test.expect_error($$update public.members set role = 'admin' where user_id = auth.uid()$$, 'last owner cannot demote themselves');
+-- The app saves with upsert: editing your own record (e.g. a profile photo) must not reset your status.
+insert into public.members (id, workspace_id, name, email, role, status, avatar)
+  select id, workspace_id, name, email, role, status, 'data:image/webp;base64,AAAA' from public.members where user_id = auth.uid()
+  on conflict (id) do update set name = excluded.name, role = excluded.role, status = excluded.status, avatar = excluded.avatar;
+select test.ok((select status = 'Active' and role = 'owner' and user_id is not null and avatar is not null from public.members where user_id = auth.uid()), 'upserting own record keeps owner active and linked');
+select test.expect_error($$update public.members set status = 'Invited' where user_id = auth.uid()$$, 'last active owner cannot deactivate themselves');
 
 -- Unconfirmed email cannot claim an invite
 select test.act_as('00000000-0000-0000-0000-00000000000e');
