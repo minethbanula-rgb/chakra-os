@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
 async function sampleStudio(page: Page) {
   await page.goto('./');
@@ -14,6 +15,16 @@ test('first run: start fresh', async ({ page }) => {
   await page.getByRole('button', { name: 'Create my studio' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Ada');
   await expect(page.getByText('All clear for today')).toBeVisible();
+});
+
+test('v1 data already in this browser imports in one step', async ({ page }) => {
+  const v1 = readFileSync(new URL('../tests/legacy-v1.json', import.meta.url), 'utf8');
+  await page.addInitScript((data) => { if (!localStorage.getItem('chakra-studio-os-v2')) localStorage.setItem('chakra-studio-os-v1', data); }, v1);
+  await page.goto('./');
+  await expect(page.getByText('Your v1 studio is in this browser')).toBeVisible();
+  await page.getByRole('button', { name: 'Import my v1 data' }).click();
+  await page.goto('./#/work?pview=list&pfilter=all');
+  await expect(page.getByText('Historical project').filter({ visible: true }).first()).toBeVisible();
 });
 
 test('daily check-in: complete a task, then undo', async ({ page }) => {

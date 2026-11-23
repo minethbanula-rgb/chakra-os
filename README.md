@@ -1,5 +1,7 @@
 # Chakra Studio OS v2
 
+Live app: https://minethbanula-rgb.github.io/chakra-os/
+
 The daily cockpit for a small creative studio: **Today** tells each person what to do, **Work** holds projects and tasks, **Clients** keeps relationships and a private progress portal, **Money** turns invoices into recorded income, and **Settings** holds the team, templates and data.
 
 It runs in two modes from the same build:
@@ -80,7 +82,8 @@ Rules the code follows:
    - `supabase secrets set RESEND_API_KEY=… CRON_SECRET=<random> MAIL_FROM="Chakra Studio <studio@chakradigital.co>" APP_URL=https://app.chakradigital.co`
    - `supabase functions deploy scheduled --no-verify-jwt`
    - Dashboard → Vault: add `project_url` (`https://<ref>.supabase.co`) and `cron_secret` (same value). The `…_schedule.sql` migration then calls the function hourly; each person's digest goes out at the studio's digest time. Client invoice reminders only send when **Settings → Notifications → automatic reminders** is on (`auto_reminders`).
-5. **Deploy the app on Vercel**: import the repo, framework "Vite", and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` per environment (Preview → staging, Production → production). Every pull request gets a preview URL; production rolls back in one click.
+5. **Hosting.** The app deploys to GitHub Pages from `main` via `.github/workflows/pages.yml` (one-time: Settings → Pages → Source: **GitHub Actions**). For cloud mode add repo variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, and add `https://minethbanula-rgb.github.io/chakra-os/` to Supabase redirect URLs. Set the repo variable `SUPABASE_PROJECT_REF` (plus the `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD` secrets) to have CI apply migrations.
+   Optionally also **deploy on Vercel** for per-PR previews: import the repo, framework "Vite", and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` per environment (Preview → staging, Production → production). Every pull request gets a preview URL; production rolls back in one click.
 6. **First sign-in** creates your studio and makes you the owner. In **Settings → Team**, add people by email and role; they sign in with that email and land on Today.
 
 ### Roles
@@ -96,6 +99,8 @@ Rules the code follows:
 **Clients → Client portal → Create portal link** makes a random 256-bit link. Only its SHA-256 fingerprint is stored in the cloud; the link is shown once to copy, and **Replace link** invalidates the old one. The public `portal_view` function returns studio name/logo, the client's active and delivered projects, client-visible milestones, task counts and the files link. Invoices, contacts, notes, briefs and tasks are never returned. `supabase/tests/rls.test.sql` checks this.
 
 ## Moving from v1
+
+v2 is served at the same address as v1, so when someone opens it in a browser that used v1, the welcome screen offers **Import my v1 data** in one click (the v1 copy is left untouched). Otherwise:
 
 1. In v1, click **Back Up Workspace** and keep the JSON file.
 2. Open v2 → **Import from v1 or a backup** on the welcome screen (or Settings → Data & sync → Restore or import v1).
