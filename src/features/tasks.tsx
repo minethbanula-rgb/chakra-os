@@ -7,7 +7,8 @@ import { addChecklistItem, deleteTask, setTaskStatus, snoozeTask, toggleChecklis
 import { updateRecord, removeRecord } from '@/data/store';
 import { addDays, relativeDay, today, weekRange } from '@/lib/dates';
 import { checklistOf, isOverdue } from '@/lib/domain';
-import { Avatar, Badge, Button, Checkbox, Field, IconButton, InlineInput, InlineTextarea, Input, Select, Sheet, cx, toast, useIsMobile } from '@/components/ui';
+import { MemberAvatar } from '@/components/MemberAvatar';
+import { Badge, Button, Checkbox, Field, IconButton, InlineInput, InlineTextarea, Input, Select, Sheet, cx, toast, useIsMobile } from '@/components/ui';
 
 export function DueLabel({ task }: { task: Pick<Task, 'dueOn' | 'status'> }) {
   if (!task.dueOn) return null;
@@ -113,7 +114,7 @@ export function TaskRow({ task, showProject = true, showAssignee = true }: { tas
             {task.status !== 'To do' && task.status !== 'Done' && <span>{task.status}</span>}
           </div>
         </div>
-        {showAssignee && task.assigneeId && <Avatar name={memberName(task.assigneeId)} size={24} />}
+        {showAssignee && task.assigneeId && <MemberAvatar id={task.assigneeId} fallbackName={memberName(task.assigneeId)} size={24} />}
         {!done && <div className="hidden opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 md:block"><SnoozeButton task={task} /></div>}
       </div>
     </div>

@@ -45,6 +45,8 @@ export interface Member extends Base {
   email: string;
   role: Role;
   title: string;
+  /** Profile photo as a small square data URL (resized to 256px before saving). */
+  avatar: string | null;
   status: 'Active' | 'Invited';
 }
 

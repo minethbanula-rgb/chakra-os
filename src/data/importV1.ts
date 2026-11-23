@@ -57,7 +57,7 @@ export function importV1(json: V1): { snapshot: Snapshot; report: ImportReport }
   // Members (v1 users) — matched by display name for task assignees / project owners.
   const memberByName = new Map<string, ID>();
   for (const u of arr(json.users)) {
-    const m = put('members', { name: str(u.name, 'Teammate'), email: str(u.email), role: memberByName.size === 0 ? 'owner' : 'member', title: str(u.role), status: 'Active' });
+    const m = put('members', { name: str(u.name, 'Teammate'), email: str(u.email), role: memberByName.size === 0 ? 'owner' : 'member', title: str(u.role), avatar: null, status: 'Active' });
     memberByName.set(m.name.toLowerCase(), m.id);
     memberByName.set(m.name.split(' ')[0].toLowerCase(), m.id);
   }
@@ -65,7 +65,7 @@ export function importV1(json: V1): { snapshot: Snapshot; report: ImportReport }
     const n = str(name).toLowerCase();
     if (!n) return null;
     if (memberByName.has(n)) return memberByName.get(n)!;
-    const m = put('members', { name: str(name), email: '', role: 'member', title: '', status: 'Active' });
+    const m = put('members', { name: str(name), email: '', role: 'member', title: '', avatar: null, status: 'Active' });
     memberByName.set(n, m.id);
     warnings.push(`Created team member “${str(name)}” from a task or project assignee.`);
     return m.id;

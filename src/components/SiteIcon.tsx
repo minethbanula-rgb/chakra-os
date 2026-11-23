@@ -58,3 +58,27 @@ export function readImageFile(file: File, maxBytes = 400_000): Promise<string> {
     r.readAsDataURL(file);
   });
 }
+
+/** Square-crops and resizes a photo to `px` (default 256) and returns a small WebP/JPEG data URL. */
+export async function readAvatarFile(file: File, px = 256): Promise<string> {
+  if (!file.type.startsWith('image/')) throw new Error('Choose an image file');
+  if (file.size > 15_000_000) throw new Error('That photo is too large');
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const side = Math.min(img.naturalWidth, img.naturalHeight);
+    const c = document.createElement('canvas');
+    c.width = c.height = px;
+    const ctx = c.getContext('2d')!;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, px, px);
+    const webp = c.toDataURL('image/webp', 0.85);
+    return webp.startsWith('data:image/webp') ? webp : c.toDataURL('image/jpeg', 0.85);
+  } catch {
+    throw new Error('Could not read that photo');
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}

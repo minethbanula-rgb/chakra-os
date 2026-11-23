@@ -28,7 +28,7 @@ export function Onboarding() {
     }
     batch('Set up studio', () => {
       updateWorkspace({ name: f.name.trim() || 'My Studio', ownerName: f.owner.trim(), currency: f.currency, cycleStartDay: Number(f.cycle), logo, onboarded: true });
-      const me = createRecord('members', { name: f.owner.trim() || 'Me', email: '', role: 'owner', title: 'Owner', status: 'Active' });
+      const me = createRecord('members', { name: f.owner.trim() || 'Me', email: '', role: 'owner', title: 'Owner', avatar: null, status: 'Active' });
       setMe(me.id);
       for (const t of templateDrafts()) createRecord('templates', t);
     });

@@ -85,11 +85,25 @@ test('client portal shows milestones but no money', async ({ page, context }) =>
   await expect(portal.getByText(/INV-|\$/)).toHaveCount(0);
 });
 
+test('profile photo uploads and shows across the app', async ({ page }) => {
+  await sampleStudio(page);
+  await page.goto('./#/settings/profile');
+  await expect(page.getByText('Your profile').first()).toBeVisible();
+  // a 2×1 red PNG: cropped to a square and resized in the browser
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAEUlEQVR42mP8z8DwnwEIGAEAD/8B/0JmFJ8AAAAASUVORK5CYII=', 'base64');
+  await page.locator('input[type=file]').first().setInputFiles({ name: 'me.png', mimeType: 'image/png', buffer: png });
+  await expect(page.getByText('Photo updated')).toBeVisible();
+  await expect(page.locator('img[alt="Mineth Banula"]').filter({ visible: true }).first()).toBeVisible();
+  await page.goto('./#/');
+  await page.getByRole('tab', { name: 'Everyone' }).click();
+  await expect(page.locator('img[alt="Mineth Banula"]').filter({ visible: true }).first()).toBeVisible();
+});
+
 test('every screen renders without errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await sampleStudio(page);
-  for (const r of ['work', 'work/tasks', 'clients', 'money', 'money/invoices', 'money/expenses', 'money/subscriptions', 'money/reports', 'settings', 'settings/team', 'settings/templates', 'settings/notifications', 'settings/data']) {
+  for (const r of ['work', 'work/tasks', 'clients', 'money', 'money/invoices', 'money/expenses', 'money/subscriptions', 'money/reports', 'settings', 'settings/profile', 'settings/team', 'settings/templates', 'settings/notifications', 'settings/data']) {
     await page.goto(`./#/${r}`);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   }

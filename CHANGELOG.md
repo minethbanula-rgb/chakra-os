@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.2.0 — 2026-11-23
+
+- Team accounts: production build connects to the Supabase project `chakra-os-v2`; sign in with an email link.
+- Profile photos: upload yours in Settings → Profile (cropped and resized automatically); owners can set teammates' photos from Team. Photos show on tasks, boards and the top bar.
+- Cloud mode can import v1 data found in the browser.
+- Security hardening: no logged-out access to sign-in functions; no delete rights for app users.
+
 ## 2.1.0 — 2026-11-23
 
 - Minimal design: flat charcoal panels, neutral greys, grouped sidebar (Main menu · Money · Account), top bar with search.

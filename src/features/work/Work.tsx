@@ -9,7 +9,8 @@ import { updateRecord } from '@/data/store';
 import { formatDate } from '@/lib/dates';
 import { isOpenProject, projectProgress, todayBuckets } from '@/lib/domain';
 import { useWorkspace } from '@/data/hooks';
-import { Avatar, Badge, Button, EmptyState, Input, PageHeader, Panel, Progress, Segmented, StatusBadge, cx, toast } from '@/components/ui';
+import { MemberAvatar } from '@/components/MemberAvatar';
+import { Badge, Button, EmptyState, Input, PageHeader, Panel, Progress, Segmented, StatusBadge, cx, toast } from '@/components/ui';
 import { DueLabel, TaskList } from '@/features/tasks';
 
 export function WorkTabs() {
@@ -226,7 +227,7 @@ export function TaskBoard({ tasks, projectId }: { tasks: Task[]; projectId?: str
                 {!projectId && t.projectId && <p className="mt-1 truncate text-xs text-muted">{tables.projects[t.projectId]?.name}</p>}
                 <div className="mt-2 flex items-center justify-between gap-2">
                   {t.status !== 'Done' ? <DueLabel task={t} /> : <span />}
-                  {t.assigneeId && <Avatar name={memberName(t.assigneeId)} size={22} />}
+                  {t.assigneeId && <MemberAvatar id={t.assigneeId} fallbackName={memberName(t.assigneeId)} size={22} />}
                 </div>
               </article>
             ))}
