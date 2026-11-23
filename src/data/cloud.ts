@@ -77,8 +77,8 @@ async function fetchAll(sb: SupabaseClient, table: string, ws: ID) {
   return out;
 }
 
-export function cloudBackend(workspaceId: ID, userId: ID, role: 'owner' | 'admin' | 'member'): Backend {
-  const sb = supabase!;
+export function cloudBackend(workspaceId: ID, userId: ID, role: 'owner' | 'admin' | 'member', client: SupabaseClient | null = supabase): Backend {
+  const sb = client!;
   const collections = role === 'member' ? COLLECTIONS.filter((c) => !MONEY.includes(c)) : COLLECTIONS;
   let queue: RecordWrite[] = JSON.parse(localStorage.getItem(QUEUE(workspaceId)) || '[]');
   let cache: Snapshot | null = null;
@@ -189,7 +189,10 @@ export function cloudBackend(workspaceId: ID, userId: ID, role: 'owner' | 'admin
       }
     },
     subscribe(onRecord, onWorkspace) {
-      const ch = sb.channel(`ws-${workspaceId}`);
+      // Each subscription gets its own channel; any earlier one for this studio is closed first,
+      // because Supabase refuses new listeners on a channel that is already subscribed.
+      for (const old of sb.getChannels()) if (old.topic.startsWith(`realtime:ws-${workspaceId}`)) void sb.removeChannel(old);
+      const ch = sb.channel(`ws-${workspaceId}-${Math.random().toString(36).slice(2, 10)}`);
       for (const col of collections) {
         ch.on('postgres_changes', { event: '*', schema: 'public', table: TABLE[col], filter: `workspace_id=eq.${workspaceId}` }, (p) => {
           const row = p.new as Record<string, unknown>;
