@@ -78,8 +78,11 @@ function SignIn() {
   if (sent) return <div className="glass rounded-2xl p-5 text-sm"><Mail className="mb-2 text-accent" /><p className="font-medium">Check your email</p><p className="mt-1 text-muted">We sent a sign-in link to {email}. Open it on this device.</p><Button size="sm" variant="ghost" className="mt-3" onClick={() => setSent(false)}>Use another email</Button></div>;
   return (
     <div className="grid gap-4 glass rounded-2xl p-5">
-      <Button onClick={() => supabase!.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirect } })}>Continue with Google</Button>
-      <div className="flex items-center gap-3 text-xs text-faint"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
+      {/* Shown once Google is enabled in Supabase (Authentication → Providers) and VITE_AUTH_GOOGLE=1 is set. */}
+      {import.meta.env.VITE_AUTH_GOOGLE === '1' && <>
+        <Button onClick={() => supabase!.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirect } })}>Continue with Google</Button>
+        <div className="flex items-center gap-3 text-xs text-faint"><span className="h-px flex-1 bg-line" />or<span className="h-px flex-1 bg-line" /></div>
+      </>}
       <form onSubmit={submit} className="grid gap-3">
         <Field label="Work email"><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@studio.com" /></Field>
         {err && <p className="text-[13px] text-bad">{err}</p>}

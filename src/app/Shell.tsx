@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home, FolderKanban, Users, Wallet, Settings, Search, Plus, Cloud, CloudOff, Loader2, Moon, Sun, CheckSquare,
-  FileText, ArrowLeftRight, RefreshCw, BarChart3, UsersRound, type LucideIcon,
+  FileText, ArrowLeftRight, RefreshCw, BarChart3, UsersRound, CircleUser, type LucideIcon,
 } from 'lucide-react';
 import { useStore, updateWorkspace } from '@/data/store';
 import { useWorkspace, useUI, openQuickAdd, useRecord, useMeId, useCanSeeMoney } from '@/data/hooks';
@@ -43,8 +43,9 @@ const SECTIONS: { title: string; money?: boolean; items: Item[] }[] = [
   {
     title: 'Account',
     items: [
+      { to: '/settings/profile', label: 'Profile', icon: CircleUser, match: (p) => p === '/settings/profile' },
       { to: '/settings/team', label: 'Team', icon: UsersRound, match: (p) => p === '/settings/team' },
-      { to: '/settings', label: 'Settings', icon: Settings, match: (p) => p.startsWith('/settings') && p !== '/settings/team' },
+      { to: '/settings', label: 'Settings', icon: Settings, match: (p) => p.startsWith('/settings') && p !== '/settings/team' && p !== '/settings/profile' },
     ],
   },
 ];
@@ -153,7 +154,7 @@ export function Shell() {
         </button>
         <div className="ml-auto flex items-center gap-2">
           <Button variant="primary" size="sm" onClick={() => openQuickAdd()}><Plus size={15} />New task</Button>
-          <Link to="/settings" aria-label="Settings" className="ml-1"><Avatar name={name} size={32} /></Link>
+          <Link to="/settings/profile" aria-label="Your profile" className="ml-1"><Avatar name={name} src={me?.avatar} size={32} /></Link>
         </div>
       </header>
 
@@ -163,7 +164,7 @@ export function Shell() {
         <span className="min-w-0 flex-1 truncate text-[16px] font-semibold">{ws.name}</span>
         <SyncBadge compact />
         <button aria-label="Search" onClick={() => useUI.setState({ palette: true })} className="grid h-10 w-10 place-items-center rounded-lg text-muted hover:bg-hover"><Search size={19} /></button>
-        <NavLink to="/settings" aria-label="Settings"><Avatar name={name} size={30} /></NavLink>
+        <NavLink to="/settings/profile" aria-label="Your profile"><Avatar name={name} src={me?.avatar} size={30} /></NavLink>
       </header>
 
       <div className="md:grid md:grid-cols-[252px_minmax(0,1fr)] md:gap-4 md:px-4 md:pb-4">

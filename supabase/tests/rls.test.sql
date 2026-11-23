@@ -66,7 +66,9 @@ select test.ok((select count(*) = 0 from public.invoices), 'member cannot see in
 select test.ok((select count(*) = 0 from public.transactions), 'member cannot see transactions');
 select test.expect_error($$insert into public.invoices(id, workspace_id, number, issued_on, due_on, currency) select gen_random_uuid(), v, 'X', current_date, current_date, 'USD' from ids where k = 'ws1'$$, 'member cannot create invoices');
 select test.expect_error($$update public.members set role = 'owner' where user_id = auth.uid()$$, 'member cannot promote themselves');
-update public.members set title = 'Senior designer' where user_id = auth.uid();
+update public.members set title = 'Senior designer', avatar = 'data:image/webp;base64,AAAA' where user_id = auth.uid();
+select test.ok((select avatar like 'data:image/webp%' from public.members where user_id = auth.uid()), 'member can set own photo');
+select test.expect_error($$update public.members set avatar = 'https://evil.example/x.png' where user_id = auth.uid()$$, 'photo must be an image data URL');
 select test.ok((select title = 'Senior designer' from public.members where user_id = auth.uid()), 'member can edit own title');
 update public.tasks set status = 'Doing' where id = '40000000-0000-0000-0000-000000000001';
 select test.ok((select status = 'Doing' from public.tasks where id = '40000000-0000-0000-0000-000000000001'), 'member can update tasks');

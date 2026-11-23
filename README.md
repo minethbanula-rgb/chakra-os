@@ -20,6 +20,7 @@ npm run dev          # http://localhost:5173 — local mode, pick "Explore a sam
 
 | Command | What it does |
 | --- | --- |
+| `npm run build:offline` | Build without Supabase (local mode) |
 | `npm run dev` | Dev server |
 | `npm run typecheck` | TypeScript, strict |
 | `npm test` | Unit tests: money maths, cycle dates, quick-add parsing, v1 import, store actions, undo |
@@ -70,6 +71,15 @@ Rules the code follows:
 `N` new task · `⌘K` / `Ctrl K` or `/` search & commands · `G` then `T` `W` `C` `M` `S` jump to Today / Work / Clients / Money / Settings · `Esc` close.
 
 ## Cloud setup (team use)
+
+**Current production project:** Supabase `chakra-os-v2` (ref `bihpfoptgtduwguacqqq`, Mumbai). Migrations 1, 3, 4 and 5 are applied; the client config is in `.env.production`. `npm run build` builds for it; `npm run build:offline` builds local mode (used by the browser tests).
+
+Remaining dashboard steps for this project (Authentication section):
+- **URL Configuration** → Site URL `https://minethbanula-rgb.github.io/chakra-os/`; Redirect URLs add `https://minethbanula-rgb.github.io/chakra-os/**` and `http://localhost:5173/**`.
+- **SMTP** → custom SMTP (e.g. Resend) so sign-in links reach teammates. Supabase's built-in email only reaches your own organisation's members and is heavily rate-limited.
+- Optional **Google** provider → then build with `VITE_AUTH_GOOGLE=1` to show the button.
+
+Setting up a fresh project from scratch:
 
 1. **Create two Supabase projects**: `chakra-staging` and `chakra-production`. Do not reuse the v1 project.
 2. **Apply the schema** to each: `supabase link --project-ref <ref> && supabase db push`. After the first push, CI applies new migrations on merge to `main`.

@@ -319,6 +319,8 @@ end $$;
 alter table public.email_log enable row level security;
 revoke all on public.email_log from anon, authenticated;
 revoke all on all tables in schema public from anon;
+-- Supabase grants DELETE/TRUNCATE on new tables by default; the app only soft-deletes.
+revoke delete, truncate, references, trigger on all tables in schema public from authenticated;
 
 -- ---------- RPCs ----------
 

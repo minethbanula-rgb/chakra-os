@@ -69,9 +69,9 @@ export function sampleSnapshot(): Snapshot {
     return full;
   };
 
-  const me = put('members', { name: 'Mineth Banula', email: 'mineth@example.com', role: 'owner', title: 'Founder', status: 'Active' });
-  const kw = put('members', { name: 'Kaweesha Perera', email: 'kaweesha@example.com', role: 'admin', title: 'Studio manager', status: 'Active' });
-  const ruv = put('members', { name: 'Ruvini Silva', email: 'ruvini@example.com', role: 'member', title: 'Designer', status: 'Active' });
+  const me = put('members', { name: 'Mineth Banula', email: 'mineth@example.com', role: 'owner', title: 'Founder', avatar: null, status: 'Active' });
+  const kw = put('members', { name: 'Kaweesha Perera', email: 'kaweesha@example.com', role: 'admin', title: 'Studio manager', avatar: null, status: 'Active' });
+  const ruv = put('members', { name: 'Ruvini Silva', email: 'ruvini@example.com', role: 'member', title: 'Designer', avatar: null, status: 'Active' });
 
   const clients = [
     ['Nova Labs', 'Technology', 'Sarah Chen', 'sarah@novalabs.example'],

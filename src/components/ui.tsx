@@ -102,7 +102,8 @@ const STATUS_TONE: Record<string, Tone> = {
 export const StatusBadge = ({ status }: { status: string }) => <Badge tone={STATUS_TONE[status] ?? 'neutral'}>{status}</Badge>;
 
 const AVATAR_COLORS = ['#0e7490', '#4f46e5', '#0f766e', '#7c3aed', '#b45309', '#be185d'];
-export function Avatar({ name, size = 28, className }: { name: string; size?: number; className?: string }) {
+export function Avatar({ name, src, size = 28, className }: { name: string; src?: string | null; size?: number; className?: string }) {
+  if (src) return <img src={src} alt={name} title={name} className={cx('inline-block shrink-0 rounded-full object-cover ring-1 ring-line', className)} style={{ width: size, height: size }} />;
   const initials = name.split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join('').toUpperCase() || '?';
   const color = AVATAR_COLORS[[...name].reduce((a, c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length];
   return (

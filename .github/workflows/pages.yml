@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 # Builds the app and publishes it to https://<owner>.github.io/chakra-os/ on every push to main.
 # One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
-# Cloud mode: add repo variables VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY (Settings → Secrets and variables → Variables).
+# Cloud settings (Supabase URL + publishable key) live in .env.production.
 on:
   push:
     branches: [main]
@@ -24,10 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      # Supabase URL and publishable key come from .env.production
       - run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
       - run: touch dist/.nojekyll && cp dist/index.html dist/404.html
       - uses: actions/configure-pages@v5
         with: { enablement: true }

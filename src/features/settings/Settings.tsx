@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate, useParams, NavLink } from 'react-router-dom';
-import { Bell, Building2, DatabaseBackup, Download, LayoutTemplate, Mail, Palette, Plus, RotateCcw, Smartphone, Trash2, Upload, Users, Wallet } from 'lucide-react';
+import { Bell, Building2, Camera, CircleUser, DatabaseBackup, Download, LayoutTemplate, Mail, Palette, Plus, RotateCcw, Smartphone, Trash2, Upload, Users, Wallet } from 'lucide-react';
 import type { Role, Snapshot, Template, TemplateItem, Member } from '@/data/types';
 import { ROLES, PRIORITIES } from '@/data/types';
 import { useLive, useMeId, useWorkspace, useTables } from '@/data/hooks';
@@ -12,10 +12,10 @@ import { CURRENCIES, formatMoney, fromMinor, toMinor } from '@/lib/money';
 import { Avatar, Badge, Button, Checkbox, EmptyState, Field, IconButton, InlineInput, Input, Modal, PageHeader, Panel, Segmented, Select, cx, toast, useConfirm } from '@/components/ui';
 import { CloudPanel } from './CloudPanel';
 import { ChakraMark } from '@/components/Brand';
-import { readImageFile } from '@/components/SiteIcon';
+import { readAvatarFile, readImageFile } from '@/components/SiteIcon';
 
 const TABS = [
-  ['studio', 'Studio'], ['team', 'Team'], ['templates', 'Templates'], ['notifications', 'Notifications'], ['data', 'Data & sync'],
+  ['studio', 'Studio'], ['profile', 'Profile'], ['team', 'Team'], ['templates', 'Templates'], ['notifications', 'Notifications'], ['data', 'Data & sync'],
 ] as const;
 
 export function Settings() {
@@ -29,6 +29,7 @@ export function Settings() {
         ))}
       </div>
       {tab === 'studio' && <Studio />}
+      {tab === 'profile' && <Profile />}
       {tab === 'team' && <Team />}
       {tab === 'templates' && <Templates />}
       {tab === 'notifications' && <Notifications />}
@@ -95,7 +96,7 @@ function Team() {
   const add = (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.name.trim()) return;
-    createRecord('members', { name: f.name.trim(), email: f.email.trim().toLowerCase(), role: f.role, title: f.title, status: cloud && f.email ? 'Invited' : 'Active' }, `Add ${f.name}`);
+    createRecord('members', { name: f.name.trim(), email: f.email.trim().toLowerCase(), role: f.role, title: f.title, avatar: null, status: cloud && f.email ? 'Invited' : 'Active' }, `Add ${f.name}`);
     setF({ name: '', email: '', role: 'member', title: '' });
     setOpen(false);
     toast(cloud && f.email ? `Invite saved. ${f.name} can sign in with ${f.email}.` : `Added ${f.name}`);
@@ -107,7 +108,7 @@ function Team() {
         <div className="divide-y divide-line">
           {members.map((m: Member) => (
             <div key={m.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-              <Avatar name={m.name} size={34} />
+              <PhotoButton memberId={m.id} name={m.name} src={m.avatar} size={40} />
               <div className="min-w-40 flex-1">
                 <div className="flex items-center gap-2 text-sm font-medium">{m.name}{m.id === meId && <Badge tone="accent">You</Badge>}{m.status === 'Invited' && <Badge tone="info">Invited</Badge>}</div>
                 <div className="text-xs text-muted">{[m.title, m.email].filter(Boolean).join(' · ') || 'No email'}</div>
@@ -136,6 +137,71 @@ function Team() {
           <Field label="Title"><Input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="e.g. Designer" /></Field>
         </form>
       </Modal>
+    </div>
+  );
+}
+
+/** Click a photo to upload a new one (resized to 256px). */
+function PhotoButton({ memberId, name, src, size }: { memberId: string; name: string; src: string | null; size: number }) {
+  const ref = React.useRef<HTMLInputElement>(null);
+  return (
+    <>
+      <button type="button" onClick={() => ref.current?.click()} title="Change photo" aria-label={`Change photo for ${name}`} className="group relative shrink-0 rounded-full">
+        <Avatar name={name} src={src} size={size} />
+        <span className="absolute inset-0 grid place-items-center rounded-full bg-black/55 text-white opacity-0 transition-opacity group-hover:opacity-100"><Camera size={Math.max(14, size * 0.32)} /></span>
+      </button>
+      <input ref={ref} type="file" accept="image/*" className="hidden" onChange={async (e) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        try { updateRecord('members', memberId, { avatar: await readAvatarFile(file) }, 'Change photo'); toast('Photo updated', { undo: true }); }
+        catch (err) { toast((err as Error).message, { tone: 'danger' }); }
+      }} />
+    </>
+  );
+}
+
+function Profile() {
+  const meId = useMeId();
+  const me = useLive('members').find((m) => m.id === meId);
+  const members = useLive('members');
+  const cloud = useStore((s) => s.backend?.kind === 'cloud');
+  if (!me) {
+    return (
+      <Panel icon={<CircleUser />} title="Your profile" className="max-w-3xl">
+        <div className="grid gap-3 p-5 text-[13px]">
+          <p className="text-muted">Choose which team member you are on this device. Today's “My work” and your photo use this.</p>
+          <Select aria-label="I am" value="" onChange={(e) => e.target.value && setMe(e.target.value)} options={[{ value: '', label: 'Choose…' }, ...members.map((m) => ({ value: m.id, label: m.name }))]} className="max-w-xs" />
+        </div>
+      </Panel>
+    );
+  }
+  const set = (patch: Partial<Member>) => updateRecord('members', me.id, patch);
+  return (
+    <div className="grid max-w-3xl gap-4">
+      <Panel icon={<CircleUser />} title="Your profile" sub="How you appear to your team">
+        <div className="flex flex-wrap items-center gap-5 p-5">
+          <PhotoButton memberId={me.id} name={me.name} src={me.avatar} size={88} />
+          <div className="grid gap-2 text-[13px]">
+            <div className="font-medium">Profile photo</div>
+            <div className="text-muted">Any photo works — it's cropped to a square and resized, so large files are fine.</div>
+            {me.avatar && <Button size="sm" variant="ghost" className="justify-self-start" onClick={() => { set({ avatar: null }); toast('Photo removed', { undo: true }); }}>Remove photo</Button>}
+          </div>
+        </div>
+        <div className="grid gap-3 border-t border-line p-5 sm:grid-cols-2">
+          <Field label="Name"><InlineInput value={me.name} onCommit={(v) => v.trim() && set({ name: v.trim() })} /></Field>
+          <Field label="Title"><InlineInput value={me.title} onCommit={(v) => set({ title: v })} placeholder="e.g. Founder, Designer" /></Field>
+          <Field label="Email" hint={cloud ? 'You sign in with this email.' : undefined} className="sm:col-span-2"><InlineInput type="email" disabled={cloud} value={me.email} onCommit={(v) => set({ email: v.trim().toLowerCase() })} /></Field>
+        </div>
+      </Panel>
+      {!cloud && members.length > 1 && (
+        <Panel>
+          <div className="flex flex-wrap items-center justify-between gap-3 p-5 text-[13px]">
+            <span className="text-muted">Not you? Switch who's using this device.</span>
+            <Select aria-label="I am" value={me.id} onChange={(e) => setMe(e.target.value)} options={members.map((m) => ({ value: m.id, label: m.name }))} className="max-w-xs" />
+          </div>
+        </Panel>
+      )}
     </div>
   );
 }
