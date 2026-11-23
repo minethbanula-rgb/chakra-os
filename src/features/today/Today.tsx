@@ -40,21 +40,21 @@ export function Today() {
 
   return (
     <div className="grid gap-6">
-      <section className="glass relative overflow-hidden rounded-3xl px-5 py-6 md:px-7 md:py-7">
-        <div className="grid-lines pointer-events-none absolute inset-0 opacity-70" />
-        <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-accent/20 blur-3xl" />
-        <div className="relative flex flex-wrap items-end justify-between gap-5">
+      <section>
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[13px] text-muted">{parseISODate(today()).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-            <h1 className="mt-1 text-[30px] font-semibold leading-[1.1] tracking-[-0.035em] md:text-[36px]">{greeting()}{firstName ? `, ${firstName}` : ''}</h1>
-            <p className="mt-2 text-[14px] text-muted">{summary}</p>
+            <p className="text-[13px] text-faint">{parseISODate(today()).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+            <h1 className="mt-1 text-[26px] font-medium leading-tight tracking-[-0.025em]">{greeting()}{firstName ? `, ${firstName}` : ''}</h1>
           </div>
           {meId && <Segmented value={scope} onChange={setScope} options={[{ value: 'mine', label: 'My work' }, { value: 'all', label: 'Everyone' }]} />}
         </div>
-        <div className="relative mt-6 grid grid-cols-3 gap-2 md:max-w-xl">
-          <HeroStat label="Overdue" value={b.overdue.length} tone={b.overdue.length ? 'bad' : undefined} />
-          <HeroStat label="Due today" value={b.today.length} />
-          <HeroStat label="This week" value={b.week.length} />
+        <div className="glass mt-5 rounded-2xl">
+          <div className="flex items-center justify-between border-b border-line px-5 py-3.5"><span className="text-[15px] font-medium">Today at a glance</span><span className="text-[13px] text-faint">{summary}</span></div>
+          <div className="grid grid-cols-3 divide-x divide-line">
+            <HeroStat label="Overdue" value={b.overdue.length} tone={b.overdue.length ? 'bad' : undefined} />
+            <HeroStat label="Due today" value={b.today.length} />
+            <HeroStat label="This week" value={b.week.length} />
+          </div>
         </div>
       </section>
 
@@ -106,9 +106,9 @@ export function Today() {
 
 function HeroStat({ label, value, tone }: { label: string; value: number; tone?: 'bad' }) {
   return (
-    <div className="rounded-xl border border-line bg-subtle/70 px-3 py-2.5 backdrop-blur">
-      <div className={cx('tabular text-xl font-semibold tracking-tight', tone === 'bad' && 'text-bad')}>{value}</div>
-      <div className="text-xs text-muted">{label}</div>
+    <div className="px-5 py-5">
+      <div className={cx('tabular text-[40px] font-medium leading-none tracking-[-0.04em] md:text-[48px]', tone === 'bad' && 'text-bad')}>{value}</div>
+      <div className="mt-2 text-[13px] text-muted">{label}</div>
     </div>
   );
 }
@@ -192,7 +192,7 @@ function RhythmCards() {
   return (
     <>
       {showReview && (
-        <div className="glass rounded-2xl border-accent/40 p-4 shadow-[0_0_30px_-10px_var(--c-accent)]">
+        <div className="glass rounded-2xl p-4">
           <div className="mb-2 flex items-center gap-2 font-semibold text-accent"><Sparkles size={16} />Weekly review</div>
           <ul className="grid gap-1 text-[13px]">
             <li>{doneThisWeek} task{doneThisWeek === 1 ? '' : 's'} completed this week</li>

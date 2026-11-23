@@ -32,7 +32,7 @@ export function IconButton({ label, className, ...p }: ButtonProps & { label: st
 
 /* ---------- Form controls ---------- */
 
-const control = 'w-full min-w-0 rounded-xl border border-line-strong bg-subtle px-3 text-sm text-ink placeholder:text-faint focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:opacity-60';
+const control = 'w-full min-w-0 rounded-xl border border-line-strong bg-transparent px-3 text-sm text-ink placeholder:text-faint focus:border-accent focus:outline-none focus:ring-4 focus:ring-accent/10 disabled:opacity-60';
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...p }, ref) {
   return <input ref={ref} className={cx(control, 'h-10', className)} {...p} />;
 });
@@ -63,7 +63,7 @@ export function Field({ label, hint, children, className }: { label: string; hin
 export function Checkbox({ checked, onChange, label, className }: { checked: boolean; onChange: (v: boolean) => void; label: string; className?: string }) {
   return (
     <button type="button" role="checkbox" aria-checked={checked} aria-label={label} onClick={(e) => { e.stopPropagation(); onChange(!checked); }}
-      className={cx('grid h-5 w-5 shrink-0 place-items-center rounded-full border-[1.5px] transition-all', checked ? 'border-accent bg-accent text-[#04121c] shadow-[0_0_10px_var(--c-accent)]' : 'border-line-strong hover:border-accent hover:shadow-[0_0_8px_var(--glow)]', className)}>
+      className={cx('grid h-5 w-5 shrink-0 place-items-center rounded-full border-[1.5px] transition-all', checked ? 'border-accent bg-accent text-accent-ink' : 'border-line-strong hover:border-muted', className)}>
       {checked && <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3.5"><path d="m5 12 4 4 10-10" /></svg>}
     </button>
   );
@@ -142,10 +142,10 @@ export function Panel({ title, sub, icon, action, children, className, bodyClass
   return (
     <section className={cx('glass overflow-hidden rounded-2xl', className)}>
       {(title || action) && (
-        <header className="flex min-h-14 items-center justify-between gap-3 border-b border-line px-4 py-3">
+        <header className="flex min-h-14 items-center justify-between gap-3 border-b border-line px-5 py-3">
           <div className="flex min-w-0 items-center gap-2.5">
-            {icon && <span className="icon-tile h-7 w-7 [&_svg]:h-[15px] [&_svg]:w-[15px]">{icon}</span>}
-            <div className="min-w-0"><h2 className="truncate text-[14px] font-semibold">{title}</h2>{sub && <p className="truncate text-xs text-muted">{sub}</p>}</div>
+            {icon && <span className="icon-tile [&_svg]:h-[17px] [&_svg]:w-[17px]">{icon}</span>}
+            <div className="min-w-0"><h2 className="truncate text-[15px] font-medium">{title}</h2>{sub && <p className="truncate text-xs text-muted">{sub}</p>}</div>
           </div>
           {action}
         </header>
@@ -170,7 +170,7 @@ export function PageHeader({ title, sub, action }: { title: React.ReactNode; sub
   return (
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
       <div className="min-w-0">
-        <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.03em]">{title}</h1>
+        <h1 className="text-[26px] font-medium leading-tight tracking-[-0.025em]">{title}</h1>
         {sub && <div className="mt-1 text-[13px] text-muted">{sub}</div>}
       </div>
       {action && <div className="flex items-center gap-2">{action}</div>}
@@ -180,9 +180,9 @@ export function PageHeader({ title, sub, action }: { title: React.ReactNode; sub
 
 export function Stat({ label, value, note, tone }: { label: string; value: React.ReactNode; note?: React.ReactNode; tone?: 'good' | 'bad' }) {
   return (
-    <div className="min-w-0 px-4 py-3">
-      <div className="text-xs text-muted">{label}</div>
-      <div className={cx('tabular mt-0.5 truncate text-xl font-semibold tracking-tight', tone === 'good' && 'text-good', tone === 'bad' && 'text-bad')}>{value}</div>
+    <div className="min-w-0 px-5 py-4">
+      <div className="text-[13px] text-muted">{label}</div>
+      <div className={cx('tabular mt-1 truncate text-[22px] font-medium tracking-[-0.02em]', tone === 'good' && 'text-good', tone === 'bad' && 'text-bad')}>{value}</div>
       {note && <div className="mt-0.5 truncate text-xs text-faint">{note}</div>}
     </div>
   );

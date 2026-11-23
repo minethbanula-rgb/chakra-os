@@ -14,9 +14,9 @@ import { DueLabel, TaskList } from '@/features/tasks';
 
 export function WorkTabs() {
   const tab = (to: string, label: string, end = false) => (
-    <NavLink to={to} end={end} className={({ isActive }) => cx('relative h-10 px-1 text-sm font-medium', isActive ? 'text-ink after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-accent after:shadow-[0_0_10px_var(--c-accent)]' : 'text-muted hover:text-ink')}>{label}</NavLink>
+    <NavLink to={to} end={end} className={({ isActive }) => cx('relative h-10 px-1 text-sm font-medium', isActive ? 'text-ink after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-accent' : 'text-muted hover:text-ink')}>{label}</NavLink>
   );
-  return <div className="mb-5 flex gap-6 border-b border-line">{tab('/work', 'Projects', true)}{tab('/work/tasks', 'All tasks')}</div>;
+  return <div className="mb-5 flex gap-6 border-b border-line md:hidden">{tab('/work', 'Projects', true)}{tab('/work/tasks', 'All tasks')}</div>;
 }
 
 function useViewParam<T extends string>(key: string, def: T) {
@@ -45,7 +45,7 @@ export function Projects() {
 
   return (
     <>
-      <PageHeader title="Work" action={<Button variant="primary" onClick={() => openNewProject()}><Plus size={16} />New project</Button>} />
+      <PageHeader title="Projects" action={<Button variant="primary" onClick={() => openNewProject()}><Plus size={16} />New project</Button>} />
       <WorkTabs />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Segmented value={view} onChange={setView} options={[{ value: 'board', label: <span className="flex items-center gap-1.5"><LayoutGrid size={14} />Board</span> }, { value: 'list', label: <span className="flex items-center gap-1.5"><List size={14} />List</span> }]} />
@@ -97,7 +97,7 @@ function ProjectBoard({ projects }: { projects: Project[] }) {
           <section key={stage} aria-label={stage}
             onDragOver={(e) => { e.preventDefault(); setOver(stage); }} onDragLeave={() => setOver(null)}
             onDrop={(e) => { e.preventDefault(); setOver(null); const id = e.dataTransfer.getData('text/project'); if (id) { updateRecord('projects', id, { stage }, `Move to ${stage}`); toast(`Moved to ${stage}`, { undo: true }); } }}
-            className={cx('flex w-[78vw] max-w-[300px] shrink-0 snap-start flex-col gap-2 rounded-2xl border border-line bg-subtle/50 p-2 md:w-auto md:max-w-none', over === stage && 'border-accent/50 shadow-[0_0_24px_var(--glow)]')}>
+            className={cx('flex w-[78vw] max-w-[300px] shrink-0 snap-start flex-col gap-2 rounded-2xl border border-line bg-subtle/50 p-2 md:w-auto md:max-w-none', over === stage && 'border-accent/50')}>
             <div className="flex items-center justify-between px-1.5 py-1">
               <span className="text-[13px] font-semibold">{stage}</span>
               <span className="text-xs text-faint">{items.length}</span>
@@ -167,7 +167,7 @@ export function AllTasks() {
 
   return (
     <>
-      <PageHeader title="Work" action={<Button variant="primary" onClick={() => openQuickAdd()}><Plus size={16} />New task</Button>} />
+      <PageHeader title="Tasks" action={<Button variant="primary" onClick={() => openQuickAdd()}><Plus size={16} />New task</Button>} />
       <WorkTabs />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Segmented value={view} onChange={setView} options={[{ value: 'list', label: <span className="flex items-center gap-1.5"><List size={14} />List</span> }, { value: 'board', label: <span className="flex items-center gap-1.5"><LayoutGrid size={14} />Board</span> }]} />
@@ -209,7 +209,7 @@ export function TaskBoard({ tasks, projectId }: { tasks: Task[]; projectId?: str
           <section key={status} aria-label={status}
             onDragOver={(e) => { e.preventDefault(); setOver(status); }} onDragLeave={() => setOver(null)}
             onDrop={(e) => { e.preventDefault(); setOver(null); const id = e.dataTransfer.getData('text/task'); if (id) moveTask(id, status, null); }}
-            className={cx('flex w-[78vw] max-w-[300px] shrink-0 snap-start flex-col gap-2 rounded-2xl border border-line bg-subtle/50 p-2 md:w-auto md:max-w-none', over === status && 'border-accent/50 shadow-[0_0_24px_var(--glow)]')}>
+            className={cx('flex w-[78vw] max-w-[300px] shrink-0 snap-start flex-col gap-2 rounded-2xl border border-line bg-subtle/50 p-2 md:w-auto md:max-w-none', over === status && 'border-accent/50')}>
             <div className="flex items-center justify-between px-1.5 py-1">
               <span className="text-[13px] font-semibold">{status} <span className="font-normal text-faint">{items.length}</span></span>
               <button aria-label={`Add to ${status}`} onClick={() => openQuickAdd({ status, projectId })} className="grid h-7 w-7 place-items-center rounded-md text-muted hover:bg-hover"><Plus size={15} /></button>

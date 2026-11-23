@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { ChakraMark } from '@/components/Brand';
 import type { Session } from '@supabase/supabase-js';
 import { Mail, Loader2 } from 'lucide-react';
 import { supabase, cloudBackend } from '@/data/cloud';
@@ -46,7 +47,7 @@ export function CloudGate({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-dvh place-items-center bg-bg px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex items-center gap-3"><img src="./icon.svg" alt="" className="h-10 w-10" /><div><div className="text-lg font-semibold">Chakra Studio OS</div><div className="text-[13px] text-muted">Projects, clients and money</div></div></div>
+        <div className="mb-6 flex items-center gap-3"><ChakraMark size={40} className="text-ink" /><div><div className="text-lg font-semibold">Chakra Studio OS</div><div className="text-[13px] text-muted">Projects, clients and money</div></div></div>
         {phase.kind === 'loading' && <div className="flex items-center gap-2 text-muted"><Loader2 className="animate-spin" size={18} />Loading your studio…</div>}
         {phase.kind === 'signin' && <SignIn />}
         {phase.kind === 'create' && <CreateStudio onDone={() => session && open(session)} />}

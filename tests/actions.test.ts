@@ -75,3 +75,18 @@ describe('store actions', () => {
     expect(portalLinkFor(client.id)!.token).not.toBe(first);
   });
 });
+
+describe('pdf export', () => {
+  it('builds an invoice and a report PDF', async () => {
+    const { invoicePdf, reportPdf, pdfMoney } = await import('@/lib/pdf');
+    const { periodRange } = await import('@/lib/domain');
+    const inv = live(S().tables.invoices)[0];
+    const doc = await invoicePdf(inv, S().tables, S().workspace);
+    const bytes = doc.output('arraybuffer');
+    expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe('%PDF-');
+    expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(1);
+    const rep = await reportPdf(S().tables, S().workspace, periodRange('year', S().workspace));
+    expect(rep.getNumberOfPages()).toBeGreaterThanOrEqual(1);
+    expect(pdfMoney(125050, 'LKR')).toBe('LKR 1,250.50');
+  });
+});

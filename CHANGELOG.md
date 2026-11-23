@@ -1,8 +1,15 @@
 # Changelog
 
+## 2.1.0 — 2026-11-23
+
+- Minimal design: flat charcoal panels, neutral greys, grouped sidebar (Main menu · Money · Account), top bar with search.
+- New Chakra logo mark; upload your own logo on the welcome screen or in Settings.
+- Real PDF export for invoices and reports, with your logo.
+- Subscriptions and clients show website favicons automatically; subscriptions can have an uploaded logo.
+
 ## 2.0.0 — 2026-11-23
 
-Full rebuild with a dark, glass-and-glow design language. See README for details.
+Full rebuild. See README for details.
 
 - New Today screen: my overdue / today / this week, milestones, money alerts, weekly review and month-close prompts, all-clear state.
 - Navigation reduced from 10 pages to 5: Today, Work, Clients, Money, Settings. Quick add (N) with natural-language parsing and a ⌘K command palette.

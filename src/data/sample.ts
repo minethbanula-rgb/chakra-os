@@ -149,7 +149,7 @@ export function sampleSnapshot(): Snapshot {
   exp('Meta ads test', 300, -52, 'Marketing');
 
   const sub = (name: string, amt: number, renew: number, website: string) =>
-    put('subscriptions', { name, amountMinor: Math.round(amt * 100), currency: 'USD', cycle: 'monthly', renewsOn: d(renew), autoRenew: true, remindDays: 3, website, status: 'Active' });
+    put('subscriptions', { name, amountMinor: Math.round(amt * 100), currency: 'USD', cycle: 'monthly', renewsOn: d(renew), autoRenew: true, remindDays: 3, website, logo: null, status: 'Active' });
   sub('Figma', 15, 2, 'figma.com');
   sub('Adobe Creative Cloud', 52.5, 9, 'adobe.com');
   sub('Framer', 20, 16, 'framer.com');

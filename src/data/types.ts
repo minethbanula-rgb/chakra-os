@@ -178,6 +178,8 @@ export interface Subscription extends Base {
   autoRenew: boolean;
   remindDays: number;
   website: string;
+  /** Uploaded logo (data URL). When empty, the website's favicon is shown. */
+  logo: string | null;
   status: 'Active' | 'Paused';
 }
 

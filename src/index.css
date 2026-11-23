@@ -3,68 +3,61 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Design tokens: one place, dark (default) + light. Components use the Tailwind names below.
-   Language: near-black canvas, frosted panels with hairline borders, cyan glow accents. */
+/* Design tokens: one place, dark (default) + light.
+   Language: minimal. Near-black canvas, flat charcoal panels, hairline borders, neutral greys,
+   colour only where it carries meaning (overdue, paid, warnings). */
 :root {
-  --c-bg: #f3f5f7;
+  --c-bg: #f4f4f5;
   --c-panel: #ffffff;
   --c-elevated: #ffffff;
-  --c-subtle: #eef1f4;
-  --c-hover: #e8ecf0;
-  --c-line: #e2e6ea;
-  --c-line-strong: #cfd5db;
-  --c-ink: #0e1116;
-  --c-muted: #5b6570;
-  --c-faint: #8a939c;
-  --c-accent: #0891c9;
-  --c-accent-2: #0ea5e9;
+  --c-subtle: #f4f4f5;
+  --c-hover: #f0f0f1;
+  --c-line: #e7e7ea;
+  --c-line-strong: #d4d4d8;
+  --c-ink: #0b0b0c;
+  --c-muted: #5f5f66;
+  --c-faint: #8e8e95;
+  --c-accent: #0b0b0c;
+  --c-accent-2: #0b0b0c;
   --c-accent-ink: #ffffff;
-  --c-accent-soft: #e3f4fb;
+  --c-accent-soft: #efeff1;
   --c-good: #1f8a5b;
-  --c-good-soft: #e4f4ec;
-  --c-warn: #a46410;
-  --c-warn-soft: #fbf0de;
+  --c-good-soft: #e5f4ec;
+  --c-warn: #a16207;
+  --c-warn-soft: #fbf2de;
   --c-bad: #c2412d;
-  --c-bad-soft: #fce8e4;
-  --c-info: #2c64b8;
-  --c-info-soft: #e6eefa;
-  --glass-top: rgb(255 255 255 / 0.9);
-  --glass-bottom: rgb(255 255 255 / 0.7);
-  --glass-edge: rgb(255 255 255 / 0.9);
-  --glow: rgb(14 165 233 / 0.10);
-  --shadow-pop: 0 16px 40px -12px rgb(15 23 42 / 0.25), 0 2px 6px rgb(15 23 42 / 0.06);
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.05);
+  --c-bad-soft: #fce9e5;
+  --c-info: #2563eb;
+  --c-info-soft: #e8effd;
+  --shadow-pop: 0 16px 40px -12px rgb(0 0 0 / 0.2), 0 0 0 1px rgb(0 0 0 / 0.04);
+  --shadow-card: none;
   color-scheme: light;
 }
 .dark {
-  --c-bg: #050607;
-  --c-panel: #0c0e11;
-  --c-elevated: #121519;
-  --c-subtle: #13161a;
-  --c-hover: rgb(255 255 255 / 0.06);
-  --c-line: rgb(255 255 255 / 0.075);
-  --c-line-strong: rgb(255 255 255 / 0.13);
-  --c-ink: #f1f4f6;
-  --c-muted: #9aa4ad;
-  --c-faint: #66707a;
-  --c-accent: #38bdf8;
-  --c-accent-2: #0284c7;
-  --c-accent-ink: #ffffff;
-  --c-accent-soft: rgb(56 189 248 / 0.12);
+  --c-bg: #0a0a0b;
+  --c-panel: #131315;
+  --c-elevated: #1b1b1e;
+  --c-subtle: #18181b;
+  --c-hover: rgb(255 255 255 / 0.045);
+  --c-line: rgb(255 255 255 / 0.07);
+  --c-line-strong: rgb(255 255 255 / 0.12);
+  --c-ink: #ededef;
+  --c-muted: #a1a1a8;
+  --c-faint: #6c6c73;
+  --c-accent: #ededef;
+  --c-accent-2: #ededef;
+  --c-accent-ink: #0a0a0b;
+  --c-accent-soft: rgb(255 255 255 / 0.08);
   --c-good: #4ade80;
   --c-good-soft: rgb(74 222 128 / 0.10);
   --c-warn: #fbbf24;
   --c-warn-soft: rgb(251 191 36 / 0.10);
   --c-bad: #f87171;
   --c-bad-soft: rgb(248 113 113 / 0.10);
-  --c-info: #7dd3fc;
-  --c-info-soft: rgb(125 211 252 / 0.10);
-  --glass-top: rgb(255 255 255 / 0.045);
-  --glass-bottom: rgb(255 255 255 / 0.012);
-  --glass-edge: rgb(255 255 255 / 0.06);
-  --glow: rgb(56 189 248 / 0.09);
-  --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(255 255 255 / 0.06);
-  --shadow-card: 0 1px 0 rgb(0 0 0 / 0.6);
+  --c-info: #93c5fd;
+  --c-info-soft: rgb(147 197 253 / 0.10);
+  --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.07);
+  --shadow-card: none;
   color-scheme: dark;
 }
 
@@ -108,79 +101,27 @@ body {
   font-feature-settings: 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;
 }
-/* Soft cyan light falling from the top of the canvas. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background:
-    radial-gradient(900px 420px at 78% -8%, var(--glow), transparent 70%),
-    radial-gradient(700px 380px at 8% 108%, var(--glow), transparent 70%);
-}
 h1, h2, h3 { letter-spacing: -0.02em; }
 
-/* Frosted card: gradient fill, hairline border, inner top highlight, faint corner glow. */
+/* Flat card. */
 .glass {
-  position: relative;
-  background:
-    radial-gradient(120% 80% at 100% 0%, var(--glow), transparent 55%),
-    linear-gradient(180deg, var(--glass-top), var(--glass-bottom)),
-    var(--c-panel);
+  background: var(--c-subtle);
   border: 1px solid var(--c-line);
-  box-shadow: inset 0 1px 0 var(--glass-edge), var(--shadow-card);
 }
-/* Small square icon holder used in headers and lists. */
+/* Icon holder: plain, muted. */
 .icon-tile {
   display: inline-grid;
   place-items: center;
   flex-shrink: 0;
-  border-radius: 8px;
-  border: 1px solid var(--c-line-strong);
-  background: linear-gradient(180deg, var(--glass-top), transparent), var(--c-subtle);
-  box-shadow: inset 0 1px 0 var(--glass-edge);
-  color: var(--c-ink);
+  color: var(--c-muted);
 }
-/* Glowing primary action. */
+/* Primary action: solid, high contrast. */
 .btn-glow {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--c-accent) 92%, white), var(--c-accent-2));
+  background: var(--c-accent);
   color: var(--c-accent-ink);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.35),
-    0 0 0 1px color-mix(in srgb, var(--c-accent) 55%, transparent),
-    0 8px 28px -8px color-mix(in srgb, var(--c-accent) 75%, transparent);
-  text-shadow: 0 1px 1px rgb(0 0 0 / 0.15);
 }
-.btn-glow:hover { filter: brightness(1.08); }
-/* Faint construction grid, echoing logo-grid artwork. */
-.grid-lines {
-  background-image:
-    linear-gradient(var(--c-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--c-line) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(ellipse at 70% 0%, black 10%, transparent 70%);
-}
-.progress-glow { background: linear-gradient(90deg, var(--c-accent-2), var(--c-accent)); box-shadow: 0 0 12px color-mix(in srgb, var(--c-accent) 60%, transparent); }
-.tabular { font-variant-numeric: tabular-nums; }
-:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; border-radius: 6px; }
-button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
-input[type='date']::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
-}
-
-@keyframes pop-in { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: none; } }
-@keyframes slide-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes slide-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-.anim-pop { animation: pop-in 160ms ease-out; }
-.anim-fade { animation: fade-in 140ms ease-out; }
-.anim-slide { animation: slide-in 180ms ease-out; }
-.anim-up { animation: slide-up 180ms ease-out; }
-
-.pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+.btn-glow:hover { opacity: 0.9; }
+.progress-glow { background: var(--c-accent); }
 
 /* Print: only the invoice paper */
 @media print {

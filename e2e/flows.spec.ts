@@ -49,6 +49,17 @@ test('invoice to cash: record payment marks it paid and adds income', async ({ p
   await expect(page.getByText(/INV-\d{4}-002 · Lumi Co\./)).toBeVisible();
 });
 
+test('invoice and report download as PDF files', async ({ page }) => {
+  await sampleStudio(page);
+  await page.goto('./#/money/invoices');
+  await page.getByRole('link', { name: /INV-\d{4}-002/ }).click();
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download PDF' }).click()]);
+  expect(download.suggestedFilename()).toMatch(/^INV-\d{4}-002 - Lumi Co\.\.pdf$|^INV-\d{4}-002 - Lumi Co\.pdf$/);
+  await page.goto('./#/money/reports');
+  const [report] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export PDF' }).click()]);
+  expect(report.suggestedFilename()).toMatch(/report .*\.pdf$/);
+});
+
 test('client portal shows milestones but no money', async ({ page, context }) => {
   await sampleStudio(page);
   await page.goto('./#/clients');

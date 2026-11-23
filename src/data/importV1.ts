@@ -148,7 +148,7 @@ export function importV1(json: V1): { snapshot: Snapshot; report: ImportReport }
   for (const x of arr(json.subscriptions)) {
     put('subscriptions', {
       name: str(x.name), amountMinor: toMinor(num(x.amount)), currency: 'USD', cycle: 'monthly', renewsOn: date(x.renewal) ?? today(),
-      autoRenew: x.auto !== false, remindDays: num(x.reminder) || 3, website: str(x.website), status: str(x.status) === 'Paused' ? 'Paused' : 'Active',
+      autoRenew: x.auto !== false, remindDays: num(x.reminder) || 3, website: str(x.website), logo: null, status: str(x.status) === 'Paused' ? 'Paused' : 'Active',
     });
   }
 

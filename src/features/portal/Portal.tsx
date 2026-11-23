@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { ChakraMark } from '@/components/Brand';
 import { useParams } from 'react-router-dom';
 import { CheckCircle2, Circle, CircleDot, ExternalLink, Loader2 } from 'lucide-react';
 import { cloudConfigured, fetchPortal, type PortalData } from '@/data/cloud';
@@ -51,7 +52,7 @@ export function Portal() {
     <div className="min-h-dvh bg-bg">
       <header className="border-b border-line bg-panel/70 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-5 py-5">
-          {data.studio.logo ? <img src={data.studio.logo} alt="" className="h-10 w-10 rounded-lg object-contain" /> : <img src="./icon.svg" alt="" className="h-10 w-10" />}
+          {data.studio.logo ? <img src={data.studio.logo} alt="" className="h-10 w-10 rounded-lg object-contain" /> : <ChakraMark size={40} className="text-ink" />}
           <div className="min-w-0"><div className="font-semibold">{data.studio.name}</div><div className="text-[13px] text-muted">Project updates for {data.client.name}</div></div>
         </div>
       </header>

@@ -57,6 +57,12 @@ Rules the code follows:
 - Recording a payment creates the income entry. A unique index guarantees one income entry per payment.
 - Project progress = tasks done ÷ tasks (milestones when a project has no tasks). There are no manual percentages.
 
+## Branding, PDFs and icons
+
+- **Logo**: upload one on the welcome screen or in Settings → Studio (PNG, JPG, SVG or WebP, under 400 KB). It appears in the top bar, on invoices, in PDFs and on the client portal. Without one, the Chakra mark is used.
+- **PDF export**: invoices (Download PDF on the invoice, or the icon in the invoice list) and reports (Money → Reports → Export PDF) download as real A4 PDF files built in the browser with jsPDF, which loads only when you export.
+- **Website icons**: subscriptions and clients show their website's favicon automatically (Google's favicon service, then DuckDuckGo, then the site itself), with the first letter as a fallback. A subscription can also have an uploaded logo.
+
 ## Keyboard
 
 `N` new task · `⌘K` / `Ctrl K` or `/` search & commands · `G` then `T` `W` `C` `M` `S` jump to Today / Work / Clients / Money / Settings · `Esc` close.
@@ -101,5 +107,5 @@ Retired meeting records from v1 are not imported; they stay in your v1 backup fi
 
 ## Not included yet
 
-- PDF files are produced with the browser's Print → Save as PDF; "Send" opens your mail app with the invoice email pre-written. Server-side PDF and sending from the app are a later step.
+- "Send" downloads the invoice PDF and opens your mail app with the email pre-written; sending straight from the app is a later step.
 - Time tracking, calendar and Drive sync, multiple studios per login (the schema is already workspace-scoped).

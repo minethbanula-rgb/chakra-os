@@ -9,8 +9,9 @@ import { createRecord, removeRecord, updateRecord } from '@/data/store';
 import { formatDate } from '@/lib/dates';
 import { displayStatus, isOpenProject, live, projectProgress, totalsFor } from '@/lib/domain';
 import { formatMoney } from '@/lib/money';
-import { Avatar, Badge, Button, Checkbox, EmptyState, Field, IconButton, InlineInput, InlineTextarea, Input, PageHeader, Panel, Progress, Segmented, Select, Stat, StatusBadge, toast, useConfirm } from '@/components/ui';
+import { Badge, Button, Checkbox, EmptyState, Field, IconButton, InlineInput, InlineTextarea, Input, PageHeader, Panel, Progress, Segmented, Select, Stat, StatusBadge, toast, useConfirm } from '@/components/ui';
 import { portalUrl } from '@/features/notify';
+import { SiteIcon } from '@/components/SiteIcon';
 import { useStore } from '@/data/store';
 
 export function Clients() {
@@ -46,7 +47,7 @@ export function Clients() {
               const contact = live(tables.contacts).find((x) => x.clientId === c.id && x.isPrimary);
               return (
                 <button key={c.id} onClick={() => nav(`/clients/${c.id}`)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-subtle">
-                  <Avatar name={c.name} size={34} />
+                  <SiteIcon name={c.name} website={c.website} size={36} />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium">{c.name}{c.flagged && <span className="ml-2 text-xs text-bad">flagged</span>}</div>
                     <div className="truncate text-xs text-muted">{[contact?.name, c.industry].filter(Boolean).join(' · ') || 'No contact yet'}</div>
@@ -84,7 +85,7 @@ export function ClientPage() {
     <div>
       <Link to="/clients" className="mb-3 inline-flex items-center gap-1 text-[13px] text-muted hover:text-ink"><ArrowLeft size={14} />Clients</Link>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Avatar name={c.name} size={44} />
+        <SiteIcon name={c.name} website={c.website} size={48} />
         <div className="min-w-0 flex-1">
           <InlineInput aria-label="Company name" value={c.name} onCommit={(v) => v.trim() && set({ name: v.trim() })} className="!h-auto !border-transparent !bg-transparent !px-0 !py-0 text-[24px] font-semibold tracking-tight hover:!border-line focus:!px-2" />
           <div className="text-[13px] text-muted">{[c.industry, c.location].filter(Boolean).join(' · ') || 'Add details below'}</div>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { BarChart3, Download, FileText, PieChart, Plus, Receipt, RefreshCw, Tags, Trash2, Users, Wallet } from 'lucide-react';
+import { BarChart3, Download, FileDown, FileText, PieChart, Plus, Receipt, RefreshCw, Tags, Trash2, Upload, Users, Wallet } from 'lucide-react';
 import type { Subscription, Transaction, TxType } from '@/data/types';
 import { useLive, useTables, useWorkspace } from '@/data/hooks';
 import { createInvoice, logSubscriptionCharge, refreshFx, subscriptionInStudioCurrency } from '@/data/actions';
@@ -8,14 +8,16 @@ import { createRecord, removeRecord, updateRecord } from '@/data/store';
 import { addDays, daysBetween, formatDate, inRange, relativeDay, today, type Range } from '@/lib/dates';
 import { buckets, byCategory, displayStatus, outstandingMinor, periodRange, totalsFor, totalsIn, type Period, live } from '@/lib/domain';
 import { formatMoney, fromMinor, toMinor, CURRENCIES } from '@/lib/money';
-import { Badge, Button, Checkbox, EmptyState, Field, Input, PageHeader, Panel, Segmented, Select, Sheet, Stat, StatusBadge, cx, toast } from '@/components/ui';
+import { downloadInvoicePdf, downloadReportPdf } from '@/lib/pdf-lazy';
+import { SiteIcon, domainOf, readImageFile } from '@/components/SiteIcon';
+import { Badge, Button, Checkbox, EmptyState, Field, IconButton, Input, PageHeader, Panel, Segmented, Select, Sheet, Stat, StatusBadge, cx, toast } from '@/components/ui';
 
 export function MoneyTabs() {
   const tab = (to: string, label: string, end = false) => (
-    <NavLink to={to} end={end} className={({ isActive }) => cx('relative h-10 shrink-0 px-1 text-sm font-medium', isActive ? 'text-ink after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-accent after:shadow-[0_0_10px_var(--c-accent)]' : 'text-muted hover:text-ink')}>{label}</NavLink>
+    <NavLink to={to} end={end} className={({ isActive }) => cx('relative h-10 shrink-0 px-1 text-sm font-medium', isActive ? 'text-ink after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-accent' : 'text-muted hover:text-ink')}>{label}</NavLink>
   );
   return (
-    <div className="-mx-4 mb-5 flex gap-6 overflow-x-auto border-b border-line px-4 md:mx-0 md:px-0">
+    <div className="-mx-4 mb-5 flex gap-6 overflow-x-auto border-b border-line px-4 md:hidden">
       {tab('/money', 'Overview', true)}{tab('/money/invoices', 'Invoices')}{tab('/money/expenses', 'Income & expenses')}{tab('/money/subscriptions', 'Subscriptions')}{tab('/money/reports', 'Reports')}
     </div>
   );
@@ -60,6 +62,16 @@ export function MoneyOverview() {
         <span className="text-[13px] text-muted">{r.label} · to date</span>
       </div>
       <div className="grid gap-4">
+        <section className="glass rounded-2xl">
+          <div className="border-b border-line px-5 py-3.5 text-[15px] font-medium">Net this {period === 'cycle' ? (ws.cycleStartDay === 1 ? 'month' : 'cycle') : period}</div>
+          <div className="px-5 py-6">
+            <div className="flex flex-wrap items-baseline gap-3">
+              <span className={cx('tabular text-[44px] font-medium leading-none tracking-[-0.04em] md:text-[56px]', cur.net < 0 && 'text-bad')}>{new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cur.net / 100)}</span>
+              <span className="text-[15px] text-muted">{ws.currency}</span>
+            </div>
+            <p className="mt-3 text-[14px] text-muted">{formatMoney(cur.income, ws.currency)} in · {formatMoney(cur.expense, ws.currency)} out{ws.monthlyTargetMinor && period === 'cycle' ? ` · ${Math.round((cur.income / ws.monthlyTargetMinor) * 100)}% of income target` : ''}</p>
+          </div>
+        </section>
         <Panel>
           <div className="grid grid-cols-2 divide-line max-sm:[&>*:nth-child(-n+2)]:border-b sm:grid-cols-4 sm:divide-x">
             <Stat label="Income" value={formatMoney(cur.income, ws.currency)} note={delta(cur.income, prev.income)} />
@@ -104,7 +116,7 @@ function BarChart({ data, currency }: { data: ReturnType<typeof buckets>; curren
       <div className="relative flex items-end gap-2 border-b border-line" style={{ height: h }} role="img" aria-label="Income and expenses by period">
         {data.map((d, i) => (
           <div key={d.key} className="relative flex h-full flex-1 items-end justify-center gap-1" onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} onClick={() => setHover(hover === i ? null : i)}>
-            <div className="w-full max-w-7 rounded-t-md bg-gradient-to-t from-accent-2 to-accent shadow-[0_0_14px_var(--glow)] transition-[height]" style={{ height: `${(d.income / max) * 100}%`, minHeight: d.income ? 2 : 0 }} />
+            <div className="w-full max-w-7 rounded-t-md bg-accent transition-[height]" style={{ height: `${(d.income / max) * 100}%`, minHeight: d.income ? 2 : 0 }} />
             <div className="w-full max-w-7 rounded-t-md border border-line-strong bg-faint/25 transition-[height]" style={{ height: `${(d.expense / max) * 100}%`, minHeight: d.expense ? 2 : 0 }} />
             {hover === i && (
               <div className="anim-pop absolute bottom-full z-10 mb-2 w-40 rounded-lg border border-line-strong bg-elevated p-2.5 text-xs shadow-pop">
@@ -134,19 +146,20 @@ function BarChart({ data, currency }: { data: ReturnType<typeof buckets>; curren
 export function Invoices() {
   const invoices = useLive('invoices');
   const tables = useTables();
+  const ws = useWorkspace();
   const [f, setF] = React.useState<'open' | 'draft' | 'paid' | 'all'>('open');
   const list = invoices
     .filter((i) => f === 'all' || (f === 'open' ? ['Sent', 'Partially paid'].includes(i.status) : f === 'draft' ? i.status === 'Draft' : i.status === 'Paid'))
     .sort((a, b) => b.issuedOn.localeCompare(a.issuedOn) || b.number.localeCompare(a.number));
   return (
     <>
-      <PageHeader title="Money" action={<NewInvoiceButton />} />
+      <PageHeader title="Invoices" action={<NewInvoiceButton />} />
       <MoneyTabs />
       <Segmented className="mb-4" value={f} onChange={setF} options={[{ value: 'open', label: 'Awaiting payment' }, { value: 'draft', label: 'Drafts' }, { value: 'paid', label: 'Paid' }, { value: 'all', label: 'All' }]} />
       <Panel bodyClass="overflow-x-auto">
         {list.length ? (
           <table className="w-full min-w-[620px] text-sm">
-            <thead><tr className="border-b border-line text-left text-xs text-muted"><th className="px-4 py-2.5 font-medium">Invoice</th><th className="px-3 font-medium">Client</th><th className="px-3 font-medium">Due</th><th className="px-3 text-right font-medium">Total</th><th className="px-3 text-right font-medium">Balance</th><th className="px-4 font-medium">Status</th></tr></thead>
+            <thead><tr className="border-b border-line text-left text-xs text-muted"><th className="px-4 py-2.5 font-medium">Invoice</th><th className="px-3 font-medium">Client</th><th className="px-3 font-medium">Due</th><th className="px-3 text-right font-medium">Total</th><th className="px-3 text-right font-medium">Balance</th><th className="px-4 font-medium">Status</th><th className="w-12" /></tr></thead>
             <tbody className="divide-y divide-line">
               {list.map((i) => {
                 const t = totalsFor(tables, i);
@@ -159,6 +172,7 @@ export function Invoices() {
                     <td className="tabular px-3 text-right">{formatMoney(t.total, i.currency)}</td>
                     <td className="tabular px-3 text-right">{i.status === 'Paid' || i.status === 'Void' ? '—' : formatMoney(t.balance, i.currency)}</td>
                     <td className="px-4"><StatusBadge status={st} /></td>
+                    <td className="pr-3 text-right"><IconButton label={`Download ${i.number} as PDF`} onClick={(e) => { e.stopPropagation(); void downloadInvoicePdf(i, tables, ws); }}><FileDown size={16} /></IconButton></td>
                   </tr>
                 );
               })}
@@ -187,7 +201,7 @@ export function Expenses() {
   const list = txs.filter((x) => inRange(x.occurredOn, r) && (type === 'all' || x.type === type)).sort((a, b) => b.occurredOn.localeCompare(a.occurredOn));
   return (
     <>
-      <PageHeader title="Money" action={<Button variant="primary" onClick={() => setEditing('new')}><Plus size={16} />Add entry</Button>} />
+      <PageHeader title="Income & expenses" action={<Button variant="primary" onClick={() => setEditing('new')}><Plus size={16} />Add entry</Button>} />
       <MoneyTabs />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Segmented value={type} onChange={setType} options={[{ value: 'all', label: 'All' }, { value: 'Income', label: 'Income' }, { value: 'Expense', label: 'Expenses' }]} />
@@ -264,7 +278,7 @@ export function Subscriptions() {
   const usesUsd = subs.some((s) => s.currency === 'USD') && ws.currency !== 'USD';
   return (
     <>
-      <PageHeader title="Money" action={<Button variant="primary" onClick={() => setEditing('new')}><Plus size={16} />Add subscription</Button>} />
+      <PageHeader title="Subscriptions" action={<Button variant="primary" onClick={() => setEditing('new')}><Plus size={16} />Add subscription</Button>} />
       <MoneyTabs />
       <Panel className="mb-4">
         <div className="grid grid-cols-2 divide-x divide-line sm:grid-cols-3">
@@ -286,8 +300,8 @@ export function Subscriptions() {
               return (
                 <div key={s.id} className={cx('flex items-center gap-3 px-4 py-3', s.status === 'Paused' && 'opacity-60')}>
                   <button onClick={() => setEditing(s)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-                    <img alt="" src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(s.website)}&sz=64`} className="icon-tile h-8 w-8 shrink-0 p-1" onError={(e) => ((e.target as HTMLImageElement).style.visibility = 'hidden')} />
-                    <div className="min-w-0"><div className="truncate text-sm font-medium">{s.name}</div><div className={cx('text-xs', days < 0 ? 'text-bad' : days <= s.remindDays ? 'text-warn' : 'text-muted')}>{s.status === 'Paused' ? 'Paused' : days < 0 ? `Renewal passed ${formatDate(s.renewsOn)} — log it` : `Renews ${relativeDay(s.renewsOn).toLowerCase()}`}</div></div>
+                    <SiteIcon name={s.name} website={s.website} logo={s.logo} size={36} />
+                    <div className="min-w-0"><div className="truncate text-sm font-medium">{s.name}</div><div className={cx('text-xs', days < 0 ? 'text-bad' : days <= s.remindDays ? 'text-warn' : 'text-muted')}>{s.status === 'Paused' ? 'Paused' : days < 0 ? `Renewal passed ${formatDate(s.renewsOn)} — log it` : `Renews ${['Today', 'Tomorrow'].includes(relativeDay(s.renewsOn)) ? relativeDay(s.renewsOn).toLowerCase() : relativeDay(s.renewsOn)}`}</div></div>
                   </button>
                   <span className="tabular text-sm">{formatMoney(s.amountMinor, s.currency)}<span className="text-xs text-faint">/{s.cycle === 'yearly' ? 'yr' : 'mo'}</span></span>
                   {s.status === 'Active' && <Button size="sm" onClick={() => { logSubscriptionCharge(s.id); toast(`Logged ${s.name} as an expense`, { undo: true }); }} title="Add this charge to expenses and move the renewal date">Log charge</Button>}
@@ -304,18 +318,19 @@ export function Subscriptions() {
 }
 
 function SubscriptionSheet({ value, onClose }: { value: Subscription | 'new' | null; onClose: () => void }) {
-  const blank = { name: '', amount: '', currency: 'USD', cycle: 'monthly' as Subscription['cycle'], renewsOn: addDays(today(), 30), website: '', remindDays: 3, autoRenew: true, status: 'Active' as Subscription['status'] };
+  const blank = { name: '', amount: '', currency: 'USD', cycle: 'monthly' as Subscription['cycle'], renewsOn: addDays(today(), 30), website: '', logo: null as string | null, remindDays: 3, autoRenew: true, status: 'Active' as Subscription['status'] };
+  const logoRef = React.useRef<HTMLInputElement>(null);
   const [f, setF] = React.useState(blank);
   const existing = value && value !== 'new' ? value : null;
   React.useEffect(() => {
     if (value === 'new') setF(blank);
-    else if (value) setF({ name: value.name, amount: String(fromMinor(value.amountMinor)), currency: value.currency, cycle: value.cycle, renewsOn: value.renewsOn, website: value.website, remindDays: value.remindDays, autoRenew: value.autoRenew, status: value.status });
+    else if (value) setF({ name: value.name, amount: String(fromMinor(value.amountMinor)), currency: value.currency, cycle: value.cycle, renewsOn: value.renewsOn, website: value.website, logo: value.logo ?? null, remindDays: value.remindDays, autoRenew: value.autoRenew, status: value.status });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
   const save = (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.name.trim()) return;
-    const rec = { name: f.name.trim(), amountMinor: toMinor(f.amount), currency: f.currency, cycle: f.cycle, renewsOn: f.renewsOn, website: f.website.replace(/^https?:\/\//, '').replace(/\/.*$/, ''), remindDays: Number(f.remindDays) || 0, autoRenew: f.autoRenew, status: f.status };
+    const rec = { name: f.name.trim(), amountMinor: toMinor(f.amount), currency: f.currency, cycle: f.cycle, renewsOn: f.renewsOn, website: domainOf(f.website), logo: f.logo, remindDays: Number(f.remindDays) || 0, autoRenew: f.autoRenew, status: f.status };
     if (existing) updateRecord('subscriptions', existing.id, rec, 'Edit subscription');
     else createRecord('subscriptions', rec, 'Add subscription');
     onClose();
@@ -335,7 +350,13 @@ function SubscriptionSheet({ value, onClose }: { value: Subscription | 'new' | n
           <Field label="Remind me (days before)"><Input type="number" min={0} max={30} value={f.remindDays} onChange={(e) => setF({ ...f, remindDays: Number(e.target.value) })} /></Field>
           <Field label="Status"><Select value={f.status} onChange={(e) => setF({ ...f, status: e.target.value as Subscription['status'] })} options={['Active', 'Paused']} /></Field>
         </div>
-        <Field label="Website" hint="Used for the logo"><Input value={f.website} onChange={(e) => setF({ ...f, website: e.target.value })} placeholder="figma.com" /></Field>
+        <Field label="Website" hint="The site's icon is fetched automatically. Upload a logo to override it."><Input value={f.website} onChange={(e) => setF({ ...f, website: e.target.value })} placeholder="figma.com" /></Field>
+        <div className="flex items-center gap-3">
+          <SiteIcon name={f.name || '?'} website={f.website} logo={f.logo} size={44} />
+          <input ref={logoRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; try { setF({ ...f, logo: await readImageFile(file, 200_000) }); } catch (err) { toast((err as Error).message, { tone: 'danger' }); } e.target.value = ''; }} />
+          <Button size="sm" onClick={() => logoRef.current?.click()}><Upload size={14} />{f.logo ? 'Change logo' : 'Upload logo'}</Button>
+          {f.logo && <Button size="sm" variant="ghost" onClick={() => setF({ ...f, logo: null })}>Use website icon</Button>}
+        </div>
         <label className="flex items-center gap-2.5 text-sm"><Checkbox checked={f.autoRenew} label="Auto-renews" onChange={(v) => setF({ ...f, autoRenew: v })} />Auto-renews with the provider</label>
       </form>
     </Sheet>
@@ -381,7 +402,10 @@ export function Reports() {
 
   return (
     <>
-      <PageHeader title="Money" action={<Button onClick={exportCsv}><Download size={16} />Export CSV</Button>} />
+      <PageHeader title="Reports" action={<>
+        <Button onClick={exportCsv}><Download size={16} />CSV</Button>
+        <Button variant="primary" onClick={async () => { try { await downloadReportPdf(tables, ws, r); toast('Report PDF downloaded'); } catch (e) { toast(`Could not create the PDF: ${(e as Error).message}`, { tone: 'danger' }); } }}><FileDown size={16} />Export PDF</Button>
+      </>} />
       <MoneyTabs />
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <Segmented value={period} onChange={setPeriod} options={[{ value: 'cycle', label: ws.cycleStartDay === 1 ? 'Month' : 'Cycle' }, { value: 'quarter', label: 'Quarter' }, { value: 'year', label: 'Year' }]} />

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Ban, Calculator, Copy, GripVertical, ListOrdered, Mail, NotebookPen, Plus, Printer, Send, Trash2, Wallet } from 'lucide-react';
+import { ArrowLeft, Ban, Calculator, Copy, Download, GripVertical, ListOrdered, Mail, NotebookPen, Plus, Printer, Send, Trash2, Wallet } from 'lucide-react';
 import { useLive, useRecord, useTables, useWorkspace } from '@/data/hooks';
 import { deleteInvoice, deletePayment, duplicateInvoice, recordPayment, sendInvoice, voidInvoice } from '@/data/actions';
 import { createRecord, removeRecord, updateRecord } from '@/data/store';
@@ -9,6 +9,7 @@ import { displayStatus, itemsOf, paymentsOf, totalsFor } from '@/lib/domain';
 import { formatMoney, fromMinor, toMinor, CURRENCIES } from '@/lib/money';
 import { Button, EmptyState, Field, IconButton, InlineInput, InlineTextarea, Input, Modal, Panel, Select, StatusBadge, cx, toast, useConfirm } from '@/components/ui';
 import { invoiceEmail } from '@/features/notify';
+import { downloadInvoicePdf } from '@/lib/pdf-lazy';
 
 export function InvoicePage() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export function InvoicePage() {
   const clients = useLive('clients');
   const projects = useLive('projects');
   const nav = useNavigate();
+  const ws = useWorkspace();
   const confirm = useConfirm();
   const [payOpen, setPayOpen] = React.useState(false);
 
@@ -29,12 +31,17 @@ export function InvoicePage() {
   const locked = inv.status === 'Paid' || inv.status === 'Void';
   const money = (m: number) => formatMoney(m, inv.currency);
 
-  const send = () => {
+  const pdf = async () => {
+    try { await downloadInvoicePdf(inv, tables, ws); toast(`${inv.number}.pdf downloaded`); }
+    catch (e) { toast(`Could not create the PDF: ${(e as Error).message}`, { tone: 'danger' }); }
+  };
+  const send = async () => {
     if (!inv.clientId) return toast('Choose a client first', { tone: 'danger' });
     if (t.total <= 0) return toast('Add at least one line with an amount', { tone: 'danger' });
+    await pdf();
     sendInvoice(inv.id);
     window.open(invoiceEmail({ ...inv }, 'send'), '_self');
-    toast(`${inv.number} marked as sent. Attach the PDF (Print → Save as PDF) to your email.`, { undo: true });
+    toast(`${inv.number} marked as sent. The PDF is in your downloads — attach it to the email.`, { undo: true });
   };
 
   return (
@@ -47,7 +54,8 @@ export function InvoicePage() {
             <StatusBadge status={status} />
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => window.print()}><Printer size={15} />PDF</Button>
+            <IconButton label="Print" onClick={() => window.print()}><Printer size={16} /></IconButton>
+            <Button onClick={pdf}><Download size={15} />Download PDF</Button>
             {inv.status === 'Draft' && <Button variant="primary" onClick={send}><Send size={15} />Send</Button>}
             {(inv.status === 'Sent' || inv.status === 'Partially paid') && <>
               {status === 'Overdue' && <a href={invoiceEmail(inv, 'reminder')}><Button><Mail size={15} />Send reminder</Button></a>}

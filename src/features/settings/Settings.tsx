@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate, useParams, NavLink } from 'react-router-dom';
-import { Bell, Building2, DatabaseBackup, Download, ImageIcon, LayoutTemplate, Mail, Palette, Plus, RotateCcw, Smartphone, Trash2, Upload, Users, Wallet } from 'lucide-react';
+import { Bell, Building2, DatabaseBackup, Download, LayoutTemplate, Mail, Palette, Plus, RotateCcw, Smartphone, Trash2, Upload, Users, Wallet } from 'lucide-react';
 import type { Role, Snapshot, Template, TemplateItem, Member } from '@/data/types';
 import { ROLES, PRIORITIES } from '@/data/types';
 import { useLive, useMeId, useWorkspace, useTables } from '@/data/hooks';
@@ -11,6 +11,8 @@ import { formatDate } from '@/lib/dates';
 import { CURRENCIES, formatMoney, fromMinor, toMinor } from '@/lib/money';
 import { Avatar, Badge, Button, Checkbox, EmptyState, Field, IconButton, InlineInput, Input, Modal, PageHeader, Panel, Segmented, Select, cx, toast, useConfirm } from '@/components/ui';
 import { CloudPanel } from './CloudPanel';
+import { ChakraMark } from '@/components/Brand';
+import { readImageFile } from '@/components/SiteIcon';
 
 const TABS = [
   ['studio', 'Studio'], ['team', 'Team'], ['templates', 'Templates'], ['notifications', 'Notifications'], ['data', 'Data & sync'],
@@ -38,12 +40,11 @@ export function Settings() {
 function Studio() {
   const ws = useWorkspace();
   const fileRef = React.useRef<HTMLInputElement>(null);
-  const onLogo = (f: File | undefined) => {
+  const onLogo = async (f: File | undefined) => {
     if (!f) return;
-    if (f.size > 400_000) return toast('Use an image under 400 KB', { tone: 'danger' });
-    const r = new FileReader();
-    r.onload = () => updateWorkspace({ logo: String(r.result) });
-    r.readAsDataURL(f);
+    try { updateWorkspace({ logo: await readImageFile(f) }); toast('Logo updated'); }
+    catch (e) { toast((e as Error).message, { tone: 'danger' }); }
+    if (fileRef.current) fileRef.current.value = '';
   };
   return (
     <div className="grid max-w-3xl gap-4">
@@ -54,10 +55,11 @@ function Studio() {
           <Field label="Email (on invoices)"><InlineInput type="email" value={ws.email} onCommit={(v) => updateWorkspace({ email: v })} /></Field>
           <Field label="Website"><InlineInput value={ws.website} onCommit={(v) => updateWorkspace({ website: v })} /></Field>
           <Field label="Address" className="sm:col-span-2"><InlineInput value={ws.address} onCommit={(v) => updateWorkspace({ address: v })} /></Field>
-          <div className="flex items-center gap-3 sm:col-span-2">
-            <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-xl border border-line bg-subtle">{ws.logo ? <img src={ws.logo} alt="Logo" className="h-full w-full object-contain" /> : <ImageIcon size={20} className="text-faint" />}</div>
+          <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+            <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-xl border border-line bg-subtle p-2">{ws.logo ? <img src={ws.logo} alt="Logo" className="h-full w-full object-contain" /> : <ChakraMark size={36} className="text-ink" />}</div>
+            <div className="min-w-48 flex-1 text-[13px]"><div className="font-medium">Logo</div><div className="text-muted">PNG, JPG, SVG or WebP under 400 KB. Used in the app, invoices, PDFs and the client portal.</div></div>
             <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" onChange={(e) => onLogo(e.target.files?.[0])} />
-            <Button size="sm" onClick={() => fileRef.current?.click()}><Upload size={14} />Upload logo</Button>
+            <Button size="sm" onClick={() => fileRef.current?.click()}><Upload size={14} />{ws.logo ? 'Replace logo' : 'Upload logo'}</Button>
             {ws.logo && <Button size="sm" variant="ghost" onClick={() => updateWorkspace({ logo: null })}>Remove</Button>}
           </div>
         </div>

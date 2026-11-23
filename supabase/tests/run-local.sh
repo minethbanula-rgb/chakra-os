@@ -15,6 +15,6 @@ trap '"${RUN[@]}" "$PGBIN/pg_ctl" -D "$DIR" stop -m immediate >/dev/null 2>&1 ||
 PSQL=(psql -h "$DIR" -p "$PORT" -U postgres -v ON_ERROR_STOP=1 -q)
 "${PSQL[@]}" -c 'create database chakra' >/dev/null
 "${PSQL[@]}" -d chakra -f supabase/tests/stub-auth.sql
-"${PSQL[@]}" -d chakra -f supabase/migrations/20261123000001_init.sql
+for m in supabase/migrations/*.sql; do case "$m" in *schedule*) continue;; esac; "${PSQL[@]}" -d chakra -f "$m"; done
 "${PSQL[@]}" -d chakra -o /dev/null -f supabase/tests/rls.test.sql
 echo "Database tests passed"
