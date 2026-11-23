@@ -1,24 +1,42 @@
 {
   "name": "chakra-studio-os",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Creative studio workspace with secure team access and client portals",
+  "type": "module",
   "scripts": {
-    "check": "node --check dist/app.js && node --check dist/enhancements.js && node --check dist/workspace-ui.js && node --check dist/charts.js && node --check dist/delivery.js && node --check dist/sharing.js",
-    "dev": "node server.mjs",
-    "build": "npm run check && esbuild sdk-entry.js --bundle --minify --format=iife --outfile=dist/vendor.js && node build-standalone.mjs",
-    "test": "node tests/core.test.mjs && node tests/workflows.test.mjs && node tests/delivery.test.mjs",
-    "test:browser": "node tests/browser.test.mjs",
-    "test:standalone": "node tests/standalone.test.mjs",
-    "test:cloud": "node tests/cloud-readonly.test.mjs"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
+    "test": "vitest run",
+    "test:db": "bash supabase/tests/run-local.sh"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.118.0",
-    "motion": "14.9.0"
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@radix-ui/react-dialog": "^1.3.1",
+    "@supabase/supabase-js": "^2.119.2",
+    "cmdk": "^1.1.1",
+    "lucide-react": "^1.78.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.6",
+    "zod": "^4.6.7",
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
-    "esbuild": "0.25.12",
-    "jsdom": "26.1.0",
-    "playwright": "1.64.1"
+    "@playwright/test": "^1.65.1",
+    "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "jsdom": "^31.0.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.1"
   }
 }

@@ -1,67 +1,105 @@
-# Chakra Studio OS
+# Chakra Studio OS v2
 
-Live app: https://minethbanula-rgb.github.io/chakra-os/
+The daily cockpit for a small creative studio: **Today** tells each person what to do, **Work** holds projects and tasks, **Clients** keeps relationships and a private progress portal, **Money** turns invoices into recorded income, and **Settings** holds the team, templates and data.
 
-A light studio workspace for projects, tasks, clients, finances and protected client portals. Sample records are fictional. Signed-out records stay in your browser; cloud upload is explicit.
+It runs in two modes from the same build:
 
-## Project delivery update
+| Mode | When | Data lives |
+| --- | --- | --- |
+| Local | No Supabase keys set | This browser only (works offline, installable) |
+| Cloud | `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` set | Supabase Postgres, live for the whole team, cached offline |
 
-- Wider desktop sidebar and larger studio logo area.
-- Drag project cards between Board columns; Move to remains available for keyboard/touch users.
-- Task assignees and project/invoice clients are dropdowns. Historical selections remain available when editing. Only the client company name is required; contact information is optional.
-- Settings → Workspace → Monthly cycle starts on sets a recurring revenue month (for example, 25th–24th). Short months clamp the start to the last available day. Home, Finance and charts use the same selected range and exclude future transactions. Quarter/Year retain calendar periods.
-- Invoice advance percentage and amount update each other. The advance request and remaining balance appear in print, persist on invoices and can be saved in templates. Requested advances do not record payment or revenue.
-- Projects can store dated milestones with Planned / In Progress / Complete states and an HTTPS Google Drive/Docs updates link.
-- Clients → Share Portal creates a random, revocable no-login link. Anyone holding that link sees only that client’s projects, stages, milestone dates and Drive updates. Replace link invalidates the previous link; Disable sharing revokes it. Studio staff still sign in to manage or publish cloud data. Invoices, contact details, notes and tasks are excluded. Share creation is explicit; no existing clients were made public.
-- backend/share-portals.sql is the additive sharing migration, applied to the dedicated project. Only token hashes are stored in the private share table. Full workspace RLS remains unchanged. tests/sharing-boundary.sql uses rollback-only synthetic fixtures to verify access, projection, rotation and revocation.
-
-## Previous light redesign
-
-- Compact headers and a shared light theme replace scenic banners. App/invoice logos, profile photos, accent selection and subscription favicons remain.
-- Meetings, scheduling, note parsing and calendar export are retired. Old #meetings links return Home with one notice. Version 1 backups retain meeting records, legacy banner values and previously imported tasks. Clearing visible records also preserves retired history.
-- Projects offer Table, Cards and Board views. Open project metrics and the Active filter include On Hold; delivered, portfolio and archived projects are excluded. Projects with no tasks offer Add task.
-- Tasks offer Board and List views. View changes retain search and filters. Checklists calculate progress; Done checks all steps, reopening retains them, and unchecking reopens a completed task.
-- Charts share month/quarter/year-to-date ranges, revenue/expense bars, hatching, a net line, keyboard/touch details and exact-value tables. Comparisons use the equivalent elapsed previous period, clamped to that period's end. Empty buckets say No records. Current-month data excludes future transactions. Finance's top-level totals and expense breakdown use the selected reporting range.
-- Motion 14.9.0 is pinned and bundled locally from motion/mini. Appearance offers System, Reduced and Off. Missing animation support leaves the app usable. Chart range changes interpolate overlapping saved buckets; no repeated entrance on typing or saves.
-- Team is the visible label for the compatible #users route; #team is also accepted. Display roles and authorization roles remain separate.
-- Invoice templates retain line items, tax, notes, currency and invoice logo without copying client, dates or number. PDF uses browser printing.
-- USD/LKR refresh runs once per 24 hours while open or on next launch. Manual refresh and the last saved rate remain available on failure. No background scheduler is claimed.
-
-## Accounts and cloud
-
-Dedicated Supabase project: qxfumvbvnaqvtrzkmpjl. Never use Field Archive. Existing server authorization and optimistic revision checks are retained. The additive share-portals.sql migration installs the new link service. The frontend contains only a publishable key.
-
-1. Configure production SMTP and verify actual confirmation-email delivery before onboarding additional staff accounts. Email delivery is still unverified; client share links require no client account or email confirmation.
-2. Create and confirm the owner account using the configured owner email. The production redirect is https://minethbanula-rgb.github.io/chakra-os/.
-3. Sign in and explicitly choose Upload This Workspace to replace cloud records. Browser records remain available signed out.
-4. In Team → Team logins, enable each person's email and authorization role. They create their own accounts. Enabling access does not send an invitation.
-5. Use a client's Share Portal to explicitly create, copy, replace or revoke a login-free delivery link. The team workspace must be connected and saved first. Client browsers request only the token-scoped RPC; they never fetch the workspace blob.
-
-RLS limits full workspace reads/writes to staff. Only owners manage membership. Public delivery portals return matching project stages, milestones and Drive links without invoices, contacts, internal notes or tasks. Conflicting or failed saves remain unsynced; export before reloading. Do not rerun backend/schema.sql against the existing project.
-
-## Development and verification
+## Quick start
 
 ```sh
 npm ci
-npm run check
-npm test
-npm run build
-node tests/standalone.test.mjs
-npm run dev
+npm run dev          # http://localhost:5173 — local mode, pick "Explore a sample studio"
 ```
 
-Open http://localhost:5173. Build bundles Supabase and Motion with esbuild and generates both root index.html and Chakra-Studio-OS.html using build-standalone.mjs. The Python builder remains an equivalent optional path. Generated vendor.js must not be hand edited.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Dev server |
+| `npm run typecheck` | TypeScript, strict |
+| `npm test` | Unit tests: money maths, cycle dates, quick-add parsing, v1 import, store actions, undo |
+| `npm run test:db` | Applies the migration to a throwaway Postgres and runs the RLS / portal tests (needs `postgresql` installed; no Docker) |
+| `npx playwright test` | Browser flows at 1440 px and phone size (first run, check-in + undo, quick add, invoice → cash, portal, every screen) |
+| `npm run build` | Production build into `dist/` (PWA included) |
 
-Core and JSDOM workflow tests cover populated/empty screens, derived progress, period boundaries, invoice totals, legacy round trips through actual import/export controls, view/filter retention and stale saves. Standalone checks exercise both inline apps with the SDK unavailable. Run node tests/cloud-readonly.test.mjs for live anonymous-access denial checks; it changes no records.
+Set `CHROME_PATH` to use an installed Chrome for Playwright instead of downloading one.
 
-```sh
-npx playwright install chromium
-# Start npm run dev in another terminal first.
-npm run test:browser
+## How it's built
+
+```
+src/
+  app/            Shell (sidebar, phone tab bar, shortcuts), router, cloud sign-in gate
+  components/ui   Buttons, fields, side panel / bottom sheet, toasts with Undo, badges
+  data/
+    types.ts      Every record type — one per Postgres table
+    store.ts      Zustand store: create / update / soft-delete, batching, undo
+    actions.ts    Domain actions: complete task (recurrence), record payment (+ income), templates, portal links…
+    backend.ts    Local backend (localStorage, cross-tab sync)
+    cloud.ts      Supabase backend (per-record upserts, realtime, offline queue + cache)
+    importV1.ts   Converts a v1 "Back Up Workspace" file
+  features/       today · work · clients · money · settings · portal · onboarding
+  lib/            Pure logic: dates & cycles, money in minor units, invoice maths, quick-add parser
+supabase/
+  migrations/     Schema + RLS (init), hourly scheduler (schedule)
+  functions/      `scheduled`: daily digests + opt-in invoice reminders (Resend)
+  tests/          RLS tests + local runner
+e2e/              Playwright flows
 ```
 
-Browser QA covers all screens at 360, 390, 768, 1024, 1440 and 1920px, drawer keyboard navigation, reduced/off motion, printing, and screenshots. GitHub Actions installs Chromium and runs this suite, then uploads browser-verification artifacts. BASE_URL can target the public app; SCREENSHOT_DIR sets the artifact directory. CDP_URL can attach to a dedicated test browser.
+Rules the code follows:
 
-The local desktop sandbox blocks Chromium process communication and npm dependency install scripts. Here npm ci --ignore-scripts with a workspace cache succeeds, followed by all source tests and the full build. Visual results must come from the browser CI run, not the DOM tests.
+- Money is stored as integers in minor units (cents). No floating-point totals.
+- Dates are plain `YYYY-MM-DD` in the studio's calendar; "overdue" is computed, never stored.
+- Nothing is hard-deleted. Deleted records go to **Settings → Data & sync → Recently deleted**; every destructive action shows **Undo**.
+- Recording a payment creates the income entry. A unique index guarantees one income entry per payment.
+- Project progress = tasks done ÷ tasks (milestones when a project has no tasks). There are no manual percentages.
 
-Currency display relabels stored amounts; FX applies only to USD subscriptions. Invoice status changes do not create finance transactions. Subscription auto-renew tracks a preference and does not change provider billing.
+## Keyboard
+
+`N` new task · `⌘K` / `Ctrl K` or `/` search & commands · `G` then `T` `W` `C` `M` `S` jump to Today / Work / Clients / Money / Settings · `Esc` close.
+
+## Cloud setup (team use)
+
+1. **Create two Supabase projects**: `chakra-staging` and `chakra-production`. Do not reuse the v1 project.
+2. **Apply the schema** to each: `supabase link --project-ref <ref> && supabase db push`. After the first push, CI applies new migrations on merge to `main`.
+3. **Auth** (Dashboard → Authentication):
+   - Enable Email (magic link) and, optionally, Google.
+   - Site URL `https://app.chakradigital.co`; add your Vercel preview domain pattern to redirect URLs.
+   - Set up custom SMTP (e.g. Resend) and send yourself a test sign-in **before inviting anyone**. Confirmations are required; invites are claimed only by confirmed emails.
+4. **Emails and reminders** (optional but recommended):
+   - Verify the sending domain in Resend (SPF, DKIM, DMARC).
+   - `supabase secrets set RESEND_API_KEY=… CRON_SECRET=<random> MAIL_FROM="Chakra Studio <studio@chakradigital.co>" APP_URL=https://app.chakradigital.co`
+   - `supabase functions deploy scheduled --no-verify-jwt`
+   - Dashboard → Vault: add `project_url` (`https://<ref>.supabase.co`) and `cron_secret` (same value). The `…_schedule.sql` migration then calls the function hourly; each person's digest goes out at the studio's digest time. Client invoice reminders only send when **Settings → Notifications → automatic reminders** is on (`auto_reminders`).
+5. **Deploy the app on Vercel**: import the repo, framework "Vite", and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` per environment (Preview → staging, Production → production). Every pull request gets a preview URL; production rolls back in one click.
+6. **First sign-in** creates your studio and makes you the owner. In **Settings → Team**, add people by email and role; they sign in with that email and land on Today.
+
+### Roles
+
+| Role | Can |
+| --- | --- |
+| Owner | Everything, including managing other owners |
+| Admin | Everything except changing owners |
+| Member | Projects, tasks, clients, milestones. No money tables (enforced by RLS, hidden in the UI) |
+
+### Client portal
+
+**Clients → Client portal → Create portal link** makes a random 256-bit link. Only its SHA-256 fingerprint is stored in the cloud; the link is shown once to copy, and **Replace link** invalidates the old one. The public `portal_view` function returns studio name/logo, the client's active and delivered projects, client-visible milestones, task counts and the files link. Invoices, contacts, notes, briefs and tasks are never returned. `supabase/tests/rls.test.sql` checks this.
+
+## Moving from v1
+
+1. In v1, click **Back Up Workspace** and keep the JSON file.
+2. Open v2 → **Import from v1 or a backup** on the welcome screen (or Settings → Data & sync → Restore or import v1).
+3. The import shows counts and income/expense totals before replacing anything. Statuses map to the new vocabulary (Backlog → To do, In Progress → Doing, On Hold → In progress + On hold flag, Portfolio Queue → Delivered). Assignee names become team members. Paid v1 invoices get one payment record so balances are right, without adding income twice (v1 income was entered by hand).
+4. In cloud mode, sign in and use **Settings → Data & sync → Upload this browser's data**. People are matched by email and never removed.
+5. Keep v1 read-only for 30 days, then switch it off and rotate its publishable key.
+
+Retired meeting records from v1 are not imported; they stay in your v1 backup file. v1's annual revenue target becomes a monthly target (÷ 12).
+
+## Not included yet
+
+- PDF files are produced with the browser's Print → Save as PDF; "Send" opens your mail app with the invoice email pre-written. Server-side PDF and sending from the app are a later step.
+- Time tracking, calendar and Drive sync, multiple studios per login (the schema is already workspace-scoped).
