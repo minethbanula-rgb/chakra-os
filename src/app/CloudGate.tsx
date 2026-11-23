@@ -37,10 +37,15 @@ export function CloudGate({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Supabase reports the same sign-in several times (initial session, SIGNED_IN, hourly TOKEN_REFRESHED).
+  // Load the studio once per user; reloading it each time re-subscribed realtime and failed.
+  const openedFor = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (session === undefined) return;
-    if (!session) setPhase({ kind: 'signin' });
-    else void open(session);
+    if (!session) { openedFor.current = null; setPhase({ kind: 'signin' }); return; }
+    if (openedFor.current === session.user.id) return;
+    openedFor.current = session.user.id;
+    void open(session);
   }, [session, open]);
 
   if (phase.kind === 'ready') return <>{children}</>;

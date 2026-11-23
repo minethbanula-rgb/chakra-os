@@ -51,12 +51,16 @@ const set = useStore.setState;
 
 /* ---------- lifecycle ---------- */
 
+let stopSync: (() => void) | undefined;
+
 export async function initStore(backend: Backend) {
+  stopSync?.();
+  stopSync = undefined;
   const loaded = await backend.load();
   const snap: Snapshot = loaded ?? { schema: 2, workspace: defaultWorkspace(), tables: emptyTables(), meId: null };
   if (!loaded) await backend.replaceAll(snap);
   set({ backend, ready: true, ...snap });
-  backend.subscribe?.((col, rec) => {
+  stopSync = backend.subscribe?.((col, rec) => {
     set((s) => ({ tables: { ...s.tables, [col]: { ...s.tables[col], [rec.id]: rec } } as Tables }));
   }, (ws) => set({ workspace: ws }));
 }
