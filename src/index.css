@@ -1,0 +1,134 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens: one place, dark (default) + light.
+   Language: minimal. Near-black canvas, flat charcoal panels, hairline borders, neutral greys,
+   colour only where it carries meaning (overdue, paid, warnings). */
+:root {
+  --c-bg: #f4f4f5;
+  --c-panel: #ffffff;
+  --c-elevated: #ffffff;
+  --c-subtle: #f4f4f5;
+  --c-hover: #f0f0f1;
+  --c-line: #e7e7ea;
+  --c-line-strong: #d4d4d8;
+  --c-ink: #0b0b0c;
+  --c-muted: #5f5f66;
+  --c-faint: #8e8e95;
+  --c-accent: #0b0b0c;
+  --c-accent-2: #0b0b0c;
+  --c-accent-ink: #ffffff;
+  --c-accent-soft: #efeff1;
+  --c-good: #1f8a5b;
+  --c-good-soft: #e5f4ec;
+  --c-warn: #a16207;
+  --c-warn-soft: #fbf2de;
+  --c-bad: #c2412d;
+  --c-bad-soft: #fce9e5;
+  --c-info: #2563eb;
+  --c-info-soft: #e8effd;
+  --shadow-pop: 0 16px 40px -12px rgb(0 0 0 / 0.2), 0 0 0 1px rgb(0 0 0 / 0.04);
+  --shadow-card: none;
+  color-scheme: light;
+}
+.dark {
+  --c-bg: #0a0a0b;
+  --c-panel: #131315;
+  --c-elevated: #1b1b1e;
+  --c-subtle: #18181b;
+  --c-hover: rgb(255 255 255 / 0.045);
+  --c-line: rgb(255 255 255 / 0.07);
+  --c-line-strong: rgb(255 255 255 / 0.12);
+  --c-ink: #ededef;
+  --c-muted: #a1a1a8;
+  --c-faint: #6c6c73;
+  --c-accent: #ededef;
+  --c-accent-2: #ededef;
+  --c-accent-ink: #0a0a0b;
+  --c-accent-soft: rgb(255 255 255 / 0.08);
+  --c-good: #4ade80;
+  --c-good-soft: rgb(74 222 128 / 0.10);
+  --c-warn: #fbbf24;
+  --c-warn-soft: rgb(251 191 36 / 0.10);
+  --c-bad: #f87171;
+  --c-bad-soft: rgb(248 113 113 / 0.10);
+  --c-info: #93c5fd;
+  --c-info-soft: rgb(147 197 253 / 0.10);
+  --shadow-pop: 0 24px 60px -12px rgb(0 0 0 / 0.75), 0 0 0 1px rgb(255 255 255 / 0.07);
+  --shadow-card: none;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--c-bg);
+  --color-panel: var(--c-panel);
+  --color-elevated: var(--c-elevated);
+  --color-accent-2: var(--c-accent-2);
+  --color-subtle: var(--c-subtle);
+  --color-hover: var(--c-hover);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-ink: var(--c-ink);
+  --color-muted: var(--c-muted);
+  --color-faint: var(--c-faint);
+  --color-accent: var(--c-accent);
+  --color-accent-ink: var(--c-accent-ink);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-good: var(--c-good);
+  --color-good-soft: var(--c-good-soft);
+  --color-warn: var(--c-warn);
+  --color-warn-soft: var(--c-warn-soft);
+  --color-bad: var(--c-bad);
+  --color-bad-soft: var(--c-bad-soft);
+  --color-info: var(--c-info);
+  --color-info-soft: var(--c-info-soft);
+  --shadow-pop: var(--shadow-pop);
+  --shadow-card: var(--shadow-card);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.006em;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { letter-spacing: -0.02em; }
+
+/* Flat card. */
+.glass {
+  background: var(--c-subtle);
+  border: 1px solid var(--c-line);
+}
+/* Icon holder: plain, muted. */
+.icon-tile {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--c-muted);
+}
+/* Primary action: solid, high contrast. */
+.btn-glow {
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+}
+.btn-glow:hover { opacity: 0.9; }
+.progress-glow { background: var(--c-accent); }
+
+/* Print: only the invoice paper */
+@media print {
+  body { background: #fff; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  .print-area { box-shadow: none !important; border: 0 !important; margin: 0 !important; padding: 0 !important; max-width: none !important; }
+  @page { margin: 16mm; }
+}
+.print-only { display: none; }

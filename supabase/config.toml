@@ -1,0 +1,15 @@
+# Minimal config for `supabase start` (local development) and `supabase link`.
+project_id = "chakra-studio-os"
+
+[api]
+schemas = ["public"]
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:4173", "https://app.chakradigital.co"]
+
+[auth.email]
+enable_confirmations = true
+
+[functions.scheduled]
+verify_jwt = false
